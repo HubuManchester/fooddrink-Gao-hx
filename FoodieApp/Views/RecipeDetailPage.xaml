@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FoodieApp.ViewModels"
+             x:Class="FoodieApp.Views.RecipeDetailPage"
+             x:DataType="vm:RecipeDetailViewModel"
+             Title="{Binding Title}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="{Binding IsFavourite, Converter={StaticResource FavouriteIconConverter}}"
+                     Command="{Binding ToggleFavouriteCommand}" />
+        <ToolbarItem Text="Edit"  Command="{Binding EditCommand}" />
+        <ToolbarItem Text="Share" Command="{Binding ShareCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid>
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="0">
+
+            <!-- Hero card -->
+            <Frame BackgroundColor="{Binding Recipe.CardColor}"
+                   CornerRadius="18" Padding="24" Margin="0,0,0,16"
+                   HasShadow="True" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                    <Label Text="{Binding Recipe.EmojiThumbnail}" FontSize="60"
+                           HorizontalOptions="Center" />
+                    <Label Text="{Binding Recipe.Name}"
+                           FontSize="{DynamicResource GlobalSubheadFontSize}"
+                           FontAttributes="Bold" TextColor="White"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding Recipe.Description}"
+                           FontSize="{DynamicResource GlobalCaptionFontSize}"
+                           TextColor="White" Opacity="0.9"
+                           HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Info chips -->
+            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8" Margin="0,0,0,16">
+                <Frame Grid.Column="0" Style="{StaticResource CardStyle}" Padding="8" Margin="0">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="Time" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" />
+                        <Label Text="{Binding Recipe.TotalTimeDisplay}"
+                               FontSize="{DynamicResource GlobalCaptionFontSize}"
+                               FontAttributes="Bold" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Column="1" Style="{StaticResource CardStyle}" Padding="8" Margin="0">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="Serves" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" />
+                        <Label Text="{Binding ServingMultiplier, StringFormat='{0}x'}"
+                               FontSize="{DynamicResource GlobalCaptionFontSize}"
+                               FontAttributes="Bold" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Column="2" Style="{StaticResource CardStyle}" Padding="8" Margin="0">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="kcal" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" />
+                        <Label Text="{Binding Recipe.CaloriesPerServing}"
+                               FontSize="{DynamicResource GlobalCaptionFontSize}"
+                               FontAttributes="Bold" HorizontalOptions="Center"
+                               TextColor="{StaticResource Primary}" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Column="3" Style="{StaticResource CardStyle}" Padding="8" Margin="0">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="Level" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" />
+                        <Label Text="{Binding Recipe.Difficulty}"
+                               FontSize="{DynamicResource GlobalCaptionFontSize}"
+                               FontAttributes="Bold" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+            </Grid>
+
+            <!-- Servings adjuster -->
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <Grid ColumnDefinitions="*,44,36,44">
+                    <Label Grid.Column="0" Text="Adjust Servings"
+                           Style="{StaticResource BodyStyle}" FontAttributes="Bold"
+                           VerticalOptions="Center" />
+                    <Button Grid.Column="1" Text="-" Command="{Binding DecrementServingsCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" Padding="0" HeightRequest="40" />
+                    <Label Grid.Column="2" Text="{Binding ServingMultiplier}"
+                           FontSize="{DynamicResource GlobalBodyFontSize}" FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                    <Button Grid.Column="3" Text="+" Command="{Binding IncrementServingsCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" Padding="0" HeightRequest="40" />
+                </Grid>
+            </Frame>
+
+            <!-- ── Photo Gallery ─────────────────────────────────────────── -->
+            <VerticalStackLayout IsVisible="{Binding HasFoodImages}">
+                <Label Text="Photos" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,8" />
+                <ScrollView Orientation="Horizontal"
+                            HorizontalScrollBarVisibility="Never"
+                            Margin="0,0,0,16">
+                    <HorizontalStackLayout Spacing="10"
+                                           BindableLayout.ItemsSource="{Binding Recipe.FoodImageUrls}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Frame WidthRequest="180" HeightRequest="130"
+                                       CornerRadius="12" Padding="0"
+                                       HasShadow="True" BorderColor="Transparent"
+                                       IsClippedToBounds="True">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeDetailViewModel}},
+                                                              Path=ViewPhotoCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Frame.GestureRecognizers>
+                                    <Image Source="{Binding .}"
+                                           Aspect="AspectFill"
+                                           WidthRequest="180"
+                                           HeightRequest="130" />
+                                </Frame>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </HorizontalStackLayout>
+                </ScrollView>
+            </VerticalStackLayout>
+
+            <!-- ── Ingredients ──────────────────────────────────────────── -->
+            <Label Text="Ingredients" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,8" />
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="8"
+                                     BindableLayout.ItemsSource="{Binding Recipe.Ingredients}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <HorizontalStackLayout Spacing="10">
+                                <Label Text="•" TextColor="{StaticResource Primary}"
+                                       FontSize="{DynamicResource GlobalBodyFontSize}"
+                                       VerticalOptions="Start" Margin="0,1,0,0" />
+                                <Label Text="{Binding .}" Style="{StaticResource BodyStyle}" />
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Read Ingredients aloud button -->
+            <Button Text="{Binding IsReadingIngredients, Converter={StaticResource TtsButtonTextConverter}}"
+                    Command="{Binding ReadIngredientsCommand}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    IsVisible="{Binding IsTtsEnabled}"
+                    HorizontalOptions="Fill"
+                    Margin="0,0,0,20" />
+
+            <!-- ── Instructions (normal view) ─────────────────────────── -->
+            <VerticalStackLayout IsVisible="{Binding IsCookingMode, Converter={StaticResource InverseBoolConverter}}">
+                <Label Text="Instructions" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,8" />
+                <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                    <VerticalStackLayout Spacing="14"
+                                         BindableLayout.ItemsSource="{Binding Recipe.Steps}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <HorizontalStackLayout Spacing="12">
+                                    <Frame WidthRequest="22" HeightRequest="22" CornerRadius="11"
+                                           BackgroundColor="{StaticResource Primary}"
+                                           Padding="0" HasShadow="False" BorderColor="Transparent"
+                                           VerticalOptions="Start" Margin="0,1,0,0">
+                                        <Label Text="·" FontSize="{DynamicResource GlobalBodyFontSize}" FontAttributes="Bold"
+                                               TextColor="White"
+                                               HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Frame>
+                                    <Label Text="{Binding .}" Style="{StaticResource BodyStyle}"
+                                           LineHeight="1.4" HorizontalOptions="FillAndExpand" />
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Read Instructions aloud button -->
+                <Button Text="{Binding IsReadingAll, Converter={StaticResource TtsButtonTextConverter}}"
+                        Command="{Binding ReadAllCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        IsVisible="{Binding IsTtsEnabled}"
+                        HorizontalOptions="Fill"
+                        Margin="0,0,0,10" />
+
+                <Button Text="Start Cooking Mode"
+                        Command="{Binding ToggleCookingModeCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        HorizontalOptions="Fill" Margin="0,0,0,16" />
+            </VerticalStackLayout>
+
+            <!-- ── Cooking mode ─────────────────────────────────────────── -->
+            <VerticalStackLayout IsVisible="{Binding IsCookingMode}">
+                <Label Text="Cooking Mode" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,8" />
+
+                <Frame BackgroundColor="{StaticResource Primary}"
+                       CornerRadius="14" Padding="20" Margin="0,0,0,12"
+                       HasShadow="True" BorderColor="Transparent">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="{Binding StepProgress}"
+                               FontSize="{DynamicResource GlobalCaptionFontSize}"
+                               TextColor="White" Opacity="0.8"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding CurrentStep}"
+                               FontSize="{DynamicResource GlobalBodyFontSize}"
+                               FontAttributes="Bold" TextColor="White"
+                               HorizontalTextAlignment="Center" LineHeight="1.5" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,0,0,10">
+                    <Button Grid.Column="0" Text="Prev"
+                            Command="{Binding PrevStepCommand}"
+                            IsEnabled="{Binding CanGoPrev}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+                    <Button Grid.Column="1"
+                            Text="{Binding IsReadingStep, Converter={StaticResource TtsButtonTextConverter}}"
+                            Command="{Binding ReadAloudCommand}"
+                            IsVisible="{Binding IsTtsEnabled}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+                    <Button Grid.Column="2" Text="Next"
+                            Command="{Binding NextStepCommand}"
+                            IsEnabled="{Binding CanGoNext}"
+                            Style="{StaticResource PrimaryButtonStyle}" />
+                </Grid>
+
+                <Button Text="Exit Cooking Mode"
+                        Command="{Binding ToggleCookingModeCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        HorizontalOptions="Fill" Margin="0,0,0,16" />
+            </VerticalStackLayout>
+
+            <!-- ── Nutrition summary ───────────────────────────────────── -->
+            <Label Text="Nutrition per Serving" Style="{StaticResource SubheadingStyle}"
+                   Margin="0,0,0,8" />
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,24">
+                <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto">
+                    <Label Grid.Row="0" Grid.Column="0" Text="Protein"
+                           Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" />
+                    <Label Grid.Row="1" Grid.Column="0"
+                           Text="{Binding Recipe.ProteinGrams, StringFormat='{0}g'}"
+                           FontAttributes="Bold"
+                           FontSize="{DynamicResource GlobalBodyFontSize}"
+                           HorizontalOptions="Center" />
+                    <Label Grid.Row="0" Grid.Column="1" Text="Carbs"
+                           Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" />
+                    <Label Grid.Row="1" Grid.Column="1"
+                           Text="{Binding Recipe.CarbohydratesGrams, StringFormat='{0}g'}"
+                           FontAttributes="Bold"
+                           FontSize="{DynamicResource GlobalBodyFontSize}"
+                           HorizontalOptions="Center" />
+                    <Label Grid.Row="0" Grid.Column="2" Text="Fat"
+                           Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" />
+                    <Label Grid.Row="1" Grid.Column="2"
+                           Text="{Binding Recipe.FatGrams, StringFormat='{0}g'}"
+                           FontAttributes="Bold"
+                           FontSize="{DynamicResource GlobalBodyFontSize}"
+                           HorizontalOptions="Center" />
+                    <Label Grid.Row="0" Grid.Column="3" Text="kcal"
+                           Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" />
+                    <Label Grid.Row="1" Grid.Column="3"
+                           Text="{Binding Recipe.CaloriesPerServing}"
+                           FontAttributes="Bold"
+                           FontSize="{DynamicResource GlobalBodyFontSize}"
+                           HorizontalOptions="Center"
+                           TextColor="{StaticResource Primary}" />
+                </Grid>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+    <!-- Full-screen photo overlay: visible when user taps a gallery image -->
+    <Grid IsVisible="{Binding IsPhotoFullScreen}"
+          BackgroundColor="#CC000000"
+          ZIndex="10">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding ClosePhotoCommand}" />
+        </Grid.GestureRecognizers>
+        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Fill" Padding="16" Spacing="16">
+            <Image Source="{Binding SelectedPhotoUrl}"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Fill"
+                   HeightRequest="400"
+                   SemanticProperties.Description="Full screen recipe photo" />
+            <Label Text="Tap anywhere to close"
+                   TextColor="White" Opacity="0.7"
+                   HorizontalOptions="Center"
+                   FontSize="{DynamicResource GlobalCaptionFontSize}" />
+        </VerticalStackLayout>
+    </Grid>
+
+    </Grid>
+</ContentPage>

@@ -11,6 +11,18 @@
                       ContentTemplate="{DataTemplate views:MainPage}"
                       Route="MainPage" />
 
+        <ShellContent Title="Recipes"
+                      ContentTemplate="{DataTemplate views:RecipeListPage}"
+                      Route="RecipeListPage" />
+
+        <ShellContent Title="Scanner"
+                      ContentTemplate="{DataTemplate views:BarcodeScannerPage}"
+                      Route="BarcodeScannerPage" />
+
+        <ShellContent Title="Planner"
+                      ContentTemplate="{DataTemplate views:MealPlannerPage}"
+                      Route="MealPlannerPage" />
+
         <ShellContent Title="Settings"
                       ContentTemplate="{DataTemplate views:SettingsPage}"
                       Route="SettingsPage" />

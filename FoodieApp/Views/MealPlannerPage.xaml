@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FoodieApp.ViewModels"
+             xmlns:models="clr-namespace:FoodieApp.Models"
+             x:Class="FoodieApp.Views.MealPlannerPage"
+             x:DataType="vm:MealPlannerViewModel"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
+
+        <!-- Day selector chips -->
+        <ScrollView Grid.Row="0" Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never" Padding="12,10,12,4">
+            <HorizontalStackLayout Spacing="8">
+                <Button Text="Mon" Command="{Binding SelectDayCommand}" CommandParameter="0"
+                        Style="{StaticResource SecondaryButtonStyle}" Padding="12,6" HeightRequest="36" FontSize="{DynamicResource GlobalCaptionFontSize}" />
+                <Button Text="Tue" Command="{Binding SelectDayCommand}" CommandParameter="1"
+                        Style="{StaticResource SecondaryButtonStyle}" Padding="12,6" HeightRequest="36" FontSize="{DynamicResource GlobalCaptionFontSize}" />
+                <Button Text="Wed" Command="{Binding SelectDayCommand}" CommandParameter="2"
+                        Style="{StaticResource SecondaryButtonStyle}" Padding="12,6" HeightRequest="36" FontSize="{DynamicResource GlobalCaptionFontSize}" />
+                <Button Text="Thu" Command="{Binding SelectDayCommand}" CommandParameter="3"
+                        Style="{StaticResource SecondaryButtonStyle}" Padding="12,6" HeightRequest="36" FontSize="{DynamicResource GlobalCaptionFontSize}" />
+                <Button Text="Fri" Command="{Binding SelectDayCommand}" CommandParameter="4"
+                        Style="{StaticResource SecondaryButtonStyle}" Padding="12,6" HeightRequest="36" FontSize="{DynamicResource GlobalCaptionFontSize}" />
+                <Button Text="Sat" Command="{Binding SelectDayCommand}" CommandParameter="5"
+                        Style="{StaticResource SecondaryButtonStyle}" Padding="12,6" HeightRequest="36" FontSize="{DynamicResource GlobalCaptionFontSize}" />
+                <Button Text="Sun" Command="{Binding SelectDayCommand}" CommandParameter="6"
+                        Style="{StaticResource SecondaryButtonStyle}" Padding="12,6" HeightRequest="36" FontSize="{DynamicResource GlobalCaptionFontSize}" />
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Selected day label -->
+        <Label Grid.Row="1"
+               Text="{Binding SelectedDayName}"
+               Style="{StaticResource SubheadingStyle}"
+               Margin="16,4,0,4" />
+
+        <!-- Daily nutrition totals -->
+        <Frame Grid.Row="2" BackgroundColor="{StaticResource Primary}"
+               CornerRadius="14" Padding="14" Margin="12,0,12,4"
+               HasShadow="False" BorderColor="Transparent">
+            <Grid ColumnDefinitions="*,*,*,*">
+                <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="1">
+                    <Label Text="{Binding DailyCalories, StringFormat='{0:F0}'}"
+                           FontSize="{DynamicResource GlobalSubheadFontSize}" FontAttributes="Bold" TextColor="White"
+                           HorizontalOptions="Center" />
+                    <Label Text="kcal" FontSize="{DynamicResource GlobalCaptionFontSize}" TextColor="White" Opacity="0.8"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="1">
+                    <Label Text="{Binding DailyProtein, StringFormat='{0:F0}g'}"
+                           FontSize="{DynamicResource GlobalSubheadFontSize}" FontAttributes="Bold" TextColor="White"
+                           HorizontalOptions="Center" />
+                    <Label Text="Protein" FontSize="{DynamicResource GlobalCaptionFontSize}" TextColor="White" Opacity="0.8"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="1">
+                    <Label Text="{Binding DailyCarbs, StringFormat='{0:F0}g'}"
+                           FontSize="{DynamicResource GlobalSubheadFontSize}" FontAttributes="Bold" TextColor="White"
+                           HorizontalOptions="Center" />
+                    <Label Text="Carbs" FontSize="{DynamicResource GlobalCaptionFontSize}" TextColor="White" Opacity="0.8"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="3" HorizontalOptions="Center" Spacing="1">
+                    <Label Text="{Binding DailyFat, StringFormat='{0:F0}g'}"
+                           FontSize="{DynamicResource GlobalSubheadFontSize}" FontAttributes="Bold" TextColor="White"
+                           HorizontalOptions="Center" />
+                    <Label Text="Fat" FontSize="{DynamicResource GlobalCaptionFontSize}" TextColor="White" Opacity="0.8"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Grid>
+        </Frame>
+
+        <Label Grid.Row="3"
+               Text="Tap a slot to assign a recipe. Swipe left to remove."
+               Style="{StaticResource CaptionStyle}"
+               HorizontalOptions="Center" Margin="0,2,0,0" />
+
+        <ActivityIndicator Grid.Row="4"
+                           IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                           Color="{StaticResource Primary}"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+
+        <!-- Shows only entries for the selected day -->
+        <CollectionView Grid.Row="4"
+                        ItemsSource="{Binding DayEntries}"
+                        IsVisible="{Binding IsNotBusy}"
+                        Margin="12,4,12,0" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:MealPlanEntry">
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Remove"
+                                           BackgroundColor="{StaticResource ErrorColor}"
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MealPlannerViewModel}},
+                                                             Path=RemoveEntryCommand}"
+                                           CommandParameter="{Binding .}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+
+                        <Frame Style="{StaticResource CardStyle}" Padding="12" Margin="0,0,0,8">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MealPlannerViewModel}},
+                                                      Path=AssignRecipeCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
+                            <Grid ColumnDefinitions="40,*,Auto" ColumnSpacing="12">
+                                <Label Grid.Column="0"
+                                       Text="{Binding MealType, Converter={StaticResource MealTypeIconConverter}}"
+                                       FontSize="28" VerticalOptions="Center" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding MealType}"
+                                           Style="{StaticResource BodyStyle}" FontAttributes="Bold" />
+                                    <Label Text="{Binding Recipe.Name, FallbackValue='Tap to add a recipe'}"
+                                           Style="{StaticResource CaptionStyle}"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Recipe.CaloriesPerServing, StringFormat='{0} kcal', FallbackValue=''}"
+                                           Style="{StaticResource CaptionStyle}"
+                                           TextColor="{StaticResource Primary}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2"
+                                       Text="{Binding Recipe.EmojiThumbnail, FallbackValue='+'}"
+                                       FontSize="{DynamicResource GlobalHeadingFontSize}" VerticalOptions="Center" />
+                            </Grid>
+                        </Frame>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.EmptyView>
+                <Label Text="No entries for this day."
+                       Style="{StaticResource CaptionStyle}"
+                       HorizontalOptions="Center" Margin="0,20" />
+            </CollectionView.EmptyView>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>

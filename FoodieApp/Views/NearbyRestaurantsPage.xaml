@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FoodieApp.ViewModels"
+             x:Class="FoodieApp.Views.NearbyRestaurantsPage"
+             x:DataType="vm:NearbyRestaurantsViewModel"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Location banner -->
+        <Frame Grid.Row="0" BackgroundColor="{StaticResource Secondary}"
+               CornerRadius="16" Padding="16" Margin="12,10,12,8"
+               HasShadow="True" BorderColor="Transparent">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                    <Label Text="Your Location" FontSize="{DynamicResource GlobalBodyFontSize}" FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="{Binding CurrentAddress}" FontSize="{DynamicResource GlobalCaptionFontSize}"
+                           TextColor="White" Opacity="0.9" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+                <Button Grid.Column="1" Text="Get Location"
+                        Command="{Binding GetLocationCommand}"
+                        IsEnabled="{Binding IsNotBusy}"
+                        BackgroundColor="White"
+                        TextColor="{StaticResource Secondary}"
+                        CornerRadius="10" FontSize="{DynamicResource GlobalCaptionFontSize}" FontAttributes="Bold"
+                        Padding="12,8" HeightRequest="40"
+                        VerticalOptions="Center"
+                        SemanticProperties.Hint="Get current GPS location" />
+            </Grid>
+        </Frame>
+
+        <ActivityIndicator Grid.Row="1"
+                           IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                           Color="{StaticResource Primary}"
+                           HorizontalOptions="Center" Margin="0,6" />
+
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Restaurants}"
+                        Margin="12,0,12,0" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:RestaurantItem">
+                    <Frame Style="{StaticResource CardStyle}" Padding="14" Margin="0,0,0,10">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:NearbyRestaurantsViewModel}},
+                                                  Path=OpenMapsCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Frame.GestureRecognizers>
+                        <Grid ColumnDefinitions="52,*,Auto" ColumnSpacing="12">
+                            <Frame Grid.Column="0"
+                                   WidthRequest="48" HeightRequest="48" CornerRadius="24"
+                                   BackgroundColor="{StaticResource PrimaryLight}"
+                                   Padding="0" HasShadow="False" BorderColor="Transparent"
+                                   VerticalOptions="Center">
+                                <Label Text="{Binding Emoji}" FontSize="{DynamicResource GlobalHeadingFontSize}"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Frame>
+                            <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                <Label Text="{Binding Name}" Style="{StaticResource BodyStyle}"
+                                       FontAttributes="Bold" />
+                                <Label Text="{Binding Cuisine}" Style="{StaticResource CaptionStyle}" />
+                                <Label Text="{Binding RatingDisplay}" Style="{StaticResource CaptionStyle}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" Spacing="4"
+                                                 HorizontalOptions="End" VerticalOptions="Center">
+                                <Label Text="{Binding Distance}"
+                                       FontSize="{DynamicResource GlobalBodyFontSize}" FontAttributes="Bold"
+                                       TextColor="{StaticResource Primary}"
+                                       HorizontalOptions="End" />
+                                <Label Text="Open Maps"
+                                       Style="{StaticResource CaptionStyle}"
+                                       TextColor="{StaticResource Secondary}"
+                                       HorizontalOptions="End" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"
+                                     Spacing="12" Margin="32">
+                    <Label Text="No restaurants found." Style="{StaticResource SubheadingStyle}"
+                           HorizontalOptions="Center" />
+                    <Label Text="Tap 'Get Location' to find restaurants near you."
+                           Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>

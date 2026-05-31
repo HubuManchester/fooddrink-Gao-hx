@@ -21,10 +21,10 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        // Services
+        // Services - singleton lifetime so state persists across pages
         builder.Services.AddSingleton<IRecipeService,         RecipeService>();
         builder.Services.AddSingleton<ISettingsService,       SettingsService>();
-        // Hardware services registered as stubs - real implementations added in v3
+        // Hardware services still use stub implementations - real hardware added in v3
         builder.Services.AddSingleton<IShakeService,          ShakeService>();
         builder.Services.AddSingleton<IBarcodeScannerService, BarcodeScannerService>();
         builder.Services.AddSingleton<ILocationService,       LocationService>();
@@ -32,13 +32,25 @@ public static class MauiProgram
         builder.Services.AddSingleton<INutritionService,      NutritionService>();
         builder.Services.AddSingleton<ICameraService,         CameraService>();
 
-        // ViewModels - only those needed for v1 pages
+        // ViewModels - transient so each navigation gets a fresh instance
         builder.Services.AddTransient<MainViewModel>();
+        builder.Services.AddTransient<RecipeListViewModel>();
+        builder.Services.AddTransient<RecipeDetailViewModel>();
+        builder.Services.AddTransient<BarcodeScannerViewModel>();
+        builder.Services.AddTransient<MealPlannerViewModel>();
+        builder.Services.AddTransient<NearbyRestaurantsViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddTransient<AddRecipeViewModel>();
 
-        // Pages - only Home, Settings and Help for v1
+        // Pages
         builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<RecipeListPage>();
+        builder.Services.AddTransient<RecipeDetailPage>();
+        builder.Services.AddTransient<BarcodeScannerPage>();
+        builder.Services.AddTransient<MealPlannerPage>();
+        builder.Services.AddTransient<NearbyRestaurantsPage>();
         builder.Services.AddTransient<SettingsPage>();
+        builder.Services.AddTransient<AddRecipePage>();
         builder.Services.AddTransient<HelpPage>();
 
 #if DEBUG

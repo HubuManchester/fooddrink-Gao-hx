@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FoodieApp.ViewModels"
+             xmlns:models="clr-namespace:FoodieApp.Models"
+             x:Class="FoodieApp.Views.BarcodeScannerPage"
+             x:DataType="vm:BarcodeScannerViewModel"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="0">
+
+            <!-- Scan buttons card -->
+            <Frame BackgroundColor="{StaticResource Primary}"
+                   CornerRadius="18" Padding="24" Margin="0,8,0,16"
+                   HasShadow="True" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
+                    <Label Text="📷" FontSize="52" HorizontalOptions="Center" />
+                    <Label Text="Scan a product barcode with your camera, or enter it manually."
+                           FontSize="{DynamicResource GlobalCaptionFontSize}"
+                           TextColor="White" HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap" />
+
+                    <!-- Camera scan -->
+                    <Button Text="Scan with Camera"
+                            Command="{Binding ScanWithCameraCommand}"
+                            IsEnabled="{Binding IsNotBusy}"
+                            BackgroundColor="White"
+                            TextColor="{StaticResource Primary}"
+                            CornerRadius="12" FontAttributes="Bold"
+                            FontSize="{DynamicResource GlobalBodyFontSize}"
+                            Padding="24,12" HeightRequest="46" />
+
+                    <!-- Manual entry -->
+                    <Button Text="Enter Barcode Manually"
+                            Command="{Binding ScanManualCommand}"
+                            IsEnabled="{Binding IsNotBusy}"
+                            BackgroundColor="Transparent"
+                            TextColor="White" BorderColor="White" BorderWidth="1.5"
+                            CornerRadius="12" FontAttributes="Bold"
+                            FontSize="{DynamicResource GlobalBodyFontSize}"
+                            Padding="24,12" HeightRequest="46" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Status / loading -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}" HorizontalOptions="Center"
+                               Margin="0,4" />
+            <Label Text="{Binding StatusMessage}"
+                   Style="{StaticResource CaptionStyle}"
+                   HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                   Margin="0,0,0,16" />
+
+            <!-- Nutrition result -->
+            <VerticalStackLayout IsVisible="{Binding HasResult}">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                    <Label Grid.Column="0" Text="Nutrition Info"
+                           Style="{StaticResource SubheadingStyle}" />
+                    <Button Grid.Column="1" Text="Clear"
+                            Command="{Binding ClearResultCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            FontSize="{DynamicResource GlobalCaptionFontSize}"
+                            Padding="12,6" HeightRequest="36" />
+                </Grid>
+
+                <!-- Product header -->
+                <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                    <Grid ColumnDefinitions="54,*" ColumnSpacing="12">
+                        <Frame Grid.Column="0"
+                               WidthRequest="50" HeightRequest="50" CornerRadius="10"
+                               BackgroundColor="{Binding NutritionInfo.NutriScoreColor}"
+                               Padding="0" HasShadow="False" BorderColor="Transparent"
+                               VerticalOptions="Center">
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="{Binding NutritionInfo.NutriScore}"
+                                       FontSize="{DynamicResource GlobalSubheadFontSize}"
+                                       FontAttributes="Bold"
+                                       TextColor="White" HorizontalOptions="Center" />
+                                <Label Text="Score"
+                                       FontSize="{DynamicResource GlobalCaptionFontSize}"
+                                       TextColor="White" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Frame>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="{Binding NutritionInfo.ProductName}"
+                                   Style="{StaticResource BodyStyle}" FontAttributes="Bold"
+                                   LineBreakMode="WordWrap" />
+                            <Label Text="{Binding NutritionInfo.Brand}"
+                                   Style="{StaticResource CaptionStyle}" />
+                            <Label Text="{Binding NutritionInfo.ServingSize, StringFormat='Per {0}'}"
+                                   Style="{StaticResource CaptionStyle}"
+                                   TextColor="{StaticResource Primary}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Frame>
+
+                <!-- Macronutrients -->
+                <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Macronutrients"
+                               Style="{StaticResource BodyStyle}" FontAttributes="Bold" />
+                        <Grid ColumnDefinitions="*,*,*,*">
+                            <VerticalStackLayout Grid.Column="0">
+                                <Label Text="{Binding NutritionInfo.Calories, StringFormat='{0:F0}'}"
+                                       FontSize="{DynamicResource GlobalBodyFontSize}"
+                                       FontAttributes="Bold" HorizontalOptions="Center"
+                                       TextColor="{StaticResource Primary}" />
+                                <Label Text="kcal" Style="{StaticResource CaptionStyle}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1">
+                                <Label Text="{Binding NutritionInfo.ProteinGrams, StringFormat='{0:F1}g'}"
+                                       FontSize="{DynamicResource GlobalBodyFontSize}"
+                                       FontAttributes="Bold" HorizontalOptions="Center" />
+                                <Label Text="Protein" Style="{StaticResource CaptionStyle}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2">
+                                <Label Text="{Binding NutritionInfo.CarbohydratesGrams, StringFormat='{0:F1}g'}"
+                                       FontSize="{DynamicResource GlobalBodyFontSize}"
+                                       FontAttributes="Bold" HorizontalOptions="Center" />
+                                <Label Text="Carbs" Style="{StaticResource CaptionStyle}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="3">
+                                <Label Text="{Binding NutritionInfo.FatGrams, StringFormat='{0:F1}g'}"
+                                       FontSize="{DynamicResource GlobalBodyFontSize}"
+                                       FontAttributes="Bold" HorizontalOptions="Center" />
+                                <Label Text="Fat" Style="{StaticResource CaptionStyle}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="{StaticResource DividerColor}" />
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto"
+                              RowSpacing="6">
+                            <Label Grid.Row="0" Grid.Column="0" Text="of which sugars"
+                                   Style="{StaticResource CaptionStyle}" />
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding NutritionInfo.SugarsGrams, StringFormat='{0:F1}g'}"
+                                   Style="{StaticResource CaptionStyle}" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.Column="0" Text="Saturated fat"
+                                   Style="{StaticResource CaptionStyle}" />
+                            <Label Grid.Row="1" Grid.Column="1"
+                                   Text="{Binding NutritionInfo.SaturatedFatGrams, StringFormat='{0:F1}g'}"
+                                   Style="{StaticResource CaptionStyle}" FontAttributes="Bold" />
+                            <Label Grid.Row="2" Grid.Column="0" Text="Salt"
+                                   Style="{StaticResource CaptionStyle}" />
+                            <Label Grid.Row="2" Grid.Column="1"
+                                   Text="{Binding NutritionInfo.SaltGrams, StringFormat='{0:F2}g'}"
+                                   Style="{StaticResource CaptionStyle}" FontAttributes="Bold" />
+                            <Label Grid.Row="3" Grid.Column="0" Text="Fibre"
+                                   Style="{StaticResource CaptionStyle}" />
+                            <Label Grid.Row="3" Grid.Column="1"
+                                   Text="{Binding NutritionInfo.FibreGrams, StringFormat='{0:F1}g'}"
+                                   Style="{StaticResource CaptionStyle}" FontAttributes="Bold" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+            </VerticalStackLayout>
+
+            <!-- Scan history -->
+            <VerticalStackLayout IsVisible="{Binding History.Count,
+                                             Converter={StaticResource CountToBoolConverter}}">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,10">
+                    <Label Grid.Column="0" Text="Recent Scans"
+                           Style="{StaticResource SubheadingStyle}" />
+                    <Button Grid.Column="1" Text="Clear All"
+                            Command="{Binding ClearHistoryCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            FontSize="{DynamicResource GlobalCaptionFontSize}"
+                            Padding="12,6" HeightRequest="36" />
+                </Grid>
+                <CollectionView ItemsSource="{Binding History}"
+                                HeightRequest="220" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:NutritionInfo">
+                            <Frame Style="{StaticResource CardStyle}"
+                                   Padding="10" Margin="0,0,0,8">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BarcodeScannerViewModel}},
+                                                          Path=SelectHistoryCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Frame.GestureRecognizers>
+                                <Grid ColumnDefinitions="38,*,Auto" ColumnSpacing="10">
+                                    <Frame Grid.Column="0"
+                                           WidthRequest="34" HeightRequest="34" CornerRadius="8"
+                                           BackgroundColor="{Binding NutriScoreColor}"
+                                           Padding="0" HasShadow="False" BorderColor="Transparent"
+                                           VerticalOptions="Center">
+                                        <Label Text="{Binding NutriScore}"
+                                               FontSize="{DynamicResource GlobalCaptionFontSize}"
+                                               FontAttributes="Bold" TextColor="White"
+                                               HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Frame>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label Text="{Binding ProductName}"
+                                               Style="{StaticResource BodyStyle}"
+                                               LineBreakMode="TailTruncation" />
+                                        <Label Text="{Binding Brand}"
+                                               Style="{StaticResource CaptionStyle}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2"
+                                           Text="{Binding Calories, StringFormat='{0:F0} kcal'}"
+                                           Style="{StaticResource CaptionStyle}"
+                                           TextColor="{StaticResource Primary}"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

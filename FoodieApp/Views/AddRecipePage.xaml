@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FoodieApp.ViewModels"
+             x:Class="FoodieApp.Views.AddRecipePage"
+             x:DataType="vm:AddRecipeViewModel"
+             Title="{Binding Title}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Save" Command="{Binding SaveCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+
+        <VerticalStackLayout Padding="16" Spacing="0">
+
+            <Label Text="Choose Icon" Style="{StaticResource SubheadingStyle}" Margin="0,8,0,8" />
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never"
+                        Margin="0,0,0,10">
+                <HorizontalStackLayout Spacing="8"
+                                       BindableLayout.ItemsSource="{Binding EmojiOptions}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Frame WidthRequest="50" HeightRequest="50" CornerRadius="12"
+                                   BackgroundColor="{StaticResource PrimaryLight}"
+                                   Padding="0" HasShadow="False" BorderColor="Transparent">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AddRecipeViewModel}},
+                                                   Path=SelectEmojiCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Frame.GestureRecognizers>
+                                <Label Text="{Binding .}" FontSize="26"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Frame>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+            </ScrollView>
+            <HorizontalStackLayout Spacing="10" Margin="0,0,0,16">
+                <Label Text="Selected:" Style="{StaticResource CaptionStyle}" VerticalOptions="Center" />
+                <Label Text="{Binding SelectedEmoji}" FontSize="30" />
+            </HorizontalStackLayout>
+
+            <Label Text="Basic Info" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,8" />
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <VerticalStackLayout Spacing="12">
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Recipe Name *" Style="{StaticResource BodyStyle}" FontAttributes="Bold" />
+                        <Entry Text="{Binding Name}" Placeholder="e.g. Classic Spaghetti Carbonara"
+                               Style="{StaticResource InputEntryStyle}" />
+                        <Label Text="{Binding NameError}" Style="{StaticResource ErrorLabelStyle}"
+                               IsVisible="{Binding IsNameValid, Converter={StaticResource InverseBoolConverter}}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Description *" Style="{StaticResource BodyStyle}" FontAttributes="Bold" />
+                        <Entry Text="{Binding Description}" Placeholder="Brief description of the dish"
+                               Style="{StaticResource InputEntryStyle}" />
+                        <Label Text="{Binding DescriptionError}" Style="{StaticResource ErrorLabelStyle}"
+                               IsVisible="{Binding IsDescriptionValid, Converter={StaticResource InverseBoolConverter}}" />
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Category" Style="{StaticResource BodyStyle}" FontAttributes="Bold" />
+                            <Picker ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Cuisine" Style="{StaticResource BodyStyle}" FontAttributes="Bold" />
+                            <Picker ItemsSource="{Binding Cuisines}" SelectedItem="{Binding Cuisine}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Difficulty" Style="{StaticResource BodyStyle}" FontAttributes="Bold" />
+                        <Picker ItemsSource="{Binding Difficulties}" SelectedItem="{Binding Difficulty}" />
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <Label Text="Time and Servings" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,8" />
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Label Text="Prep (min) *" Style="{StaticResource CaptionStyle}" FontAttributes="Bold" />
+                        <Entry Text="{Binding PrepTimeText}" Placeholder="10" Keyboard="Numeric"
+                               Style="{StaticResource InputEntryStyle}" />
+                        <Label Text="{Binding PrepTimeError}" Style="{StaticResource ErrorLabelStyle}"
+                               IsVisible="{Binding IsPrepValid, Converter={StaticResource InverseBoolConverter}}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label Text="Cook (min) *" Style="{StaticResource CaptionStyle}" FontAttributes="Bold" />
+                        <Entry Text="{Binding CookTimeText}" Placeholder="20" Keyboard="Numeric"
+                               Style="{StaticResource InputEntryStyle}" />
+                        <Label Text="{Binding CookTimeError}" Style="{StaticResource ErrorLabelStyle}"
+                               IsVisible="{Binding IsCookValid, Converter={StaticResource InverseBoolConverter}}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="2" Spacing="4">
+                        <Label Text="Servings *" Style="{StaticResource CaptionStyle}" FontAttributes="Bold" />
+                        <Entry Text="{Binding ServingsText}" Placeholder="4" Keyboard="Numeric"
+                               Style="{StaticResource InputEntryStyle}" />
+                        <Label Text="{Binding ServingsError}" Style="{StaticResource ErrorLabelStyle}"
+                               IsVisible="{Binding IsServingsValid, Converter={StaticResource InverseBoolConverter}}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <Label Text="Ingredients (one per line)" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,8" />
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <Editor Text="{Binding IngredientsText}"
+                        Placeholder="400g spaghetti&#x0a;200g pancetta&#x0a;4 eggs"
+                        MinimumHeightRequest="110" AutoSize="TextChanges"
+                        Style="{StaticResource InputEditorStyle}" />
+            </Frame>
+
+            <Label Text="Cooking Steps (one per line)" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,8" />
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <Editor Text="{Binding StepsText}"
+                        Placeholder="Boil salted water.&#x0a;Fry pancetta until golden.&#x0a;..."
+                        MinimumHeightRequest="140" AutoSize="TextChanges"
+                        Style="{StaticResource InputEditorStyle}" />
+            </Frame>
+
+            <Label Text="Nutrition per Serving (optional)" Style="{StaticResource SubheadingStyle}"
+                   Margin="0,0,0,8" />
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Label Text="kcal" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center" FontAttributes="Bold" />
+                        <Entry Text="{Binding CaloriesText}" Placeholder="0" Keyboard="Numeric"
+                               Style="{StaticResource InputEntryStyle}"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label Text="Protein (g)" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center" FontAttributes="Bold" />
+                        <Entry Text="{Binding ProteinText}" Placeholder="0" Keyboard="Numeric"
+                               Style="{StaticResource InputEntryStyle}"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="2" Spacing="4">
+                        <Label Text="Carbs (g)" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center" FontAttributes="Bold" />
+                        <Entry Text="{Binding CarbsText}" Placeholder="0" Keyboard="Numeric"
+                               Style="{StaticResource InputEntryStyle}"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="3" Spacing="4">
+                        <Label Text="Fat (g)" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center" FontAttributes="Bold" />
+                        <Entry Text="{Binding FatText}" Placeholder="0" Keyboard="Numeric"
+                               Style="{StaticResource InputEntryStyle}"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <Label Text="Photos (optional, max 5)" Style="{StaticResource SubheadingStyle}"
+                   Margin="0,0,0,8" />
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                <VerticalStackLayout Spacing="12">
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0"
+                                Text="{Binding PhotoCountText}"
+                                Command="{Binding TakePhotoCommand}"
+                                IsEnabled="{Binding CanAddPhoto}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                HeightRequest="44" FontSize="{DynamicResource GlobalCaptionFontSize}" />
+                        <Button Grid.Column="1"
+                                Text="Pick from Gallery"
+                                Command="{Binding PickPhotoCommand}"
+                                IsEnabled="{Binding CanAddPhoto}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                HeightRequest="44" FontSize="{DynamicResource GlobalCaptionFontSize}" />
+                    </Grid>
+
+                    <CollectionView ItemsSource="{Binding CapturedPhotoPaths}"
+                                    HeightRequest="120"
+                                    IsVisible="{Binding CapturedPhotoPaths.Count,
+                                                Converter={StaticResource CountToBoolConverter}}"
+                                    SelectionMode="None">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Grid WidthRequest="100" HeightRequest="100" Margin="4,8,8,4">
+                                    <Border StrokeShape="RoundRectangle 10"
+                                            Padding="0"
+                                            StrokeThickness="0"
+                                            Stroke="Transparent"
+                                            HorizontalOptions="Fill"
+                                            VerticalOptions="Fill">
+                                        <Grid>
+                                            <Image Source="{Binding .}"
+                                                   Aspect="AspectFill"
+                                                   WidthRequest="100"
+                                                   HeightRequest="100" />
+                                            <Button Text="✕"
+                                                    HorizontalOptions="End"
+                                                    VerticalOptions="Start"
+                                                    Margin="0,4,4,0"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AddRecipeViewModel}},
+                                                                   Path=RemovePhotoWithConfirmationCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="{StaticResource ErrorColor}"
+                                                    TextColor="White"
+                                                    CornerRadius="9"
+                                                    WidthRequest="18"
+                                                    HeightRequest="18"
+                                                    Padding="0"
+                                                    FontSize="8"
+                                                    FontAttributes="Bold" />
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Label Text="Notes" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,8" />
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                <Editor Text="{Binding Notes}"
+                        Placeholder="Tips, variations, substitutions..."
+                        MinimumHeightRequest="80" AutoSize="TextChanges"
+                        Style="{StaticResource InputEditorStyle}" />
+            </Frame>
+
+            <Button Text="Save Recipe"
+                    Command="{Binding SaveCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    HorizontalOptions="Fill" Margin="0,0,0,10" />
+
+            <Button Text="Cancel"
+                    Command="{Binding CancelCommand}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    HorizontalOptions="Fill" Margin="0,0,0,32" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
