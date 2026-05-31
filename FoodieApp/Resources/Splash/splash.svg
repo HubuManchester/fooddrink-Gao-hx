@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Orange background -->
+  <rect width="512" height="512" fill="#FF6B35"/>
+  <!-- White plate -->
+  <circle cx="256" cy="210" r="120" fill="white"/>
+  <!-- Fork -->
+  <rect x="185" y="120" width="14" height="72" rx="7" fill="#FF6B35"/>
+  <rect x="171" y="120" width="14" height="48" rx="7" fill="#FF6B35"/>
+  <rect x="199" y="120" width="14" height="48" rx="7" fill="#FF6B35"/>
+  <rect x="178" y="168" width="28" height="96" rx="7" fill="#FF6B35"/>
+  <!-- Knife -->
+  <rect x="313" y="120" width="14" height="140" rx="7" fill="#FF6B35"/>
+  <ellipse cx="320" cy="134" rx="13" ry="40" fill="#FF6B35"/>
+  <!-- Spoon -->
+  <ellipse cx="256" cy="278" rx="30" ry="22" fill="#FF6B35"/>
+  <rect x="249" y="256" width="14" height="54" rx="7" fill="#FF6B35"/>
+  <!-- FoodieApp label band -->
+  <rect x="56" y="358" width="400" height="72" rx="18" fill="white"/>
+  <!-- Three orange circles as food dots -->
+  <circle cx="186" cy="394" r="16" fill="#FF6B35"/>
+  <circle cx="256" cy="394" r="16" fill="#FF6B35"/>
+  <circle cx="326" cy="394" r="16" fill="#FF6B35"/>
+</svg>

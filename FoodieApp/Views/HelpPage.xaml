@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FoodieApp.Views.HelpPage"
+             Title="Help and FAQ">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="0">
+
+            <!-- App intro -->
+            <Frame BackgroundColor="{StaticResource Primary}"
+                   CornerRadius="16" Padding="20" Margin="0,8,0,18"
+                   HasShadow="True" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Welcome to FoodieApp"
+                           FontSize="{DynamicResource GlobalSubheadFontSize}" FontAttributes="Bold" TextColor="White" />
+                    <Label Text="Your all-in-one mobile cooking companion. Browse and create recipes, scan food barcodes for nutrition data, plan your weekly meals, and discover restaurants nearby."
+                           FontSize="{DynamicResource GlobalCaptionFontSize}" TextColor="White" Opacity="0.9" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Label Text="Features Guide" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,12" />
+
+            <!-- Feature 1 -->
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="6">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="📖" FontSize="{DynamicResource GlobalHeadingFontSize}" />
+                        <Label Text="Recipes" Style="{StaticResource BodyStyle}"
+                               FontAttributes="Bold" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="Browse your recipe collection, search by name or cuisine, and filter by meal category. Swipe left on any recipe card to toggle it as a favourite. Tap the + button to add your own recipes with full ingredients and step-by-step instructions."
+                           Style="{StaticResource BodyStyle}" LineHeight="1.4" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Feature 2 -->
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="6">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="📷" FontSize="{DynamicResource GlobalHeadingFontSize}" />
+                        <Label Text="Barcode Scanner (Camera)" Style="{StaticResource BodyStyle}"
+                               FontAttributes="Bold" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="Enter any food product barcode to get complete nutritional information including calories, macronutrients, and Nutri-Score grade. This feature uses the device camera and queries the Open Food Facts database. Your scan history is saved for quick reference."
+                           Style="{StaticResource BodyStyle}" LineHeight="1.4" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Feature 3 -->
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="6">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="📍" FontSize="{DynamicResource GlobalHeadingFontSize}" />
+                        <Label Text="Nearby Restaurants (GPS)" Style="{StaticResource BodyStyle}"
+                               FontAttributes="Bold" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="Uses your device GPS to determine your current location, then shows nearby restaurants. Tap any card to open it in your device maps app for directions."
+                           Style="{StaticResource BodyStyle}" LineHeight="1.4" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Feature 4 -->
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="6">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="🔊" FontSize="{DynamicResource GlobalHeadingFontSize}" />
+                        <Label Text="Text to Speech" Style="{StaticResource BodyStyle}"
+                               FontAttributes="Bold" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="In any recipe detail page, tap 'Read Aloud' to have the cooking steps read to you hands-free. In Cooking Mode you can also read each step individually. You can enable or disable TTS in Settings."
+                           Style="{StaticResource BodyStyle}" LineHeight="1.4" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Feature 5 -->
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="6">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="🎲" FontSize="{DynamicResource GlobalHeadingFontSize}" />
+                        <Label Text="Shake for Random Recipe (Accelerometer)" Style="{StaticResource BodyStyle}"
+                               FontAttributes="Bold" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="From the Home tab, shake your device to get a random recipe suggestion. The accelerometer detects the shake gesture automatically. You can also tap the Random button on the Home page."
+                           Style="{StaticResource BodyStyle}" LineHeight="1.4" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Feature 6 -->
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="6">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="📅" FontSize="{DynamicResource GlobalHeadingFontSize}" />
+                        <Label Text="Meal Planner" Style="{StaticResource BodyStyle}"
+                               FontAttributes="Bold" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="Plan your weekly meals by assigning recipes to Breakfast, Lunch, Dinner and Snack slots for each day. The daily nutrition totals update automatically. Swipe left on any slot to clear it."
+                           Style="{StaticResource BodyStyle}" LineHeight="1.4" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Tips -->
+            <Label Text="Tips" Style="{StaticResource SubheadingStyle}" Margin="0,8,0,10" />
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,30">
+                <VerticalStackLayout Spacing="10">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="Tip" FontSize="{DynamicResource GlobalCaptionFontSize}" FontAttributes="Bold"
+                               TextColor="White" BackgroundColor="{StaticResource Primary}"
+                               Padding="6,3" VerticalOptions="Start" />
+                        <Label Text="Open a recipe and tap 'Start Cooking Mode' for a big, easy-to-read step-by-step guide."
+                               Style="{StaticResource BodyStyle}" LineHeight="1.4"
+                               HorizontalOptions="FillAndExpand" />
+                    </HorizontalStackLayout>
+                    <BoxView HeightRequest="1" Color="{StaticResource DividerColor}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="Tip" FontSize="{DynamicResource GlobalCaptionFontSize}" FontAttributes="Bold"
+                               TextColor="White" BackgroundColor="{StaticResource Primary}"
+                               Padding="6,3" VerticalOptions="Start" />
+                        <Label Text="Use the + and - buttons on a recipe to scale the serving size up or down."
+                               Style="{StaticResource BodyStyle}" LineHeight="1.4"
+                               HorizontalOptions="FillAndExpand" />
+                    </HorizontalStackLayout>
+                    <BoxView HeightRequest="1" Color="{StaticResource DividerColor}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="Tip" FontSize="{DynamicResource GlobalCaptionFontSize}" FontAttributes="Bold"
+                               TextColor="White" BackgroundColor="{StaticResource Primary}"
+                               Padding="6,3" VerticalOptions="Start" />
+                        <Label Text="Tap Share on any recipe to send it to friends via any app on your device."
+                               Style="{StaticResource BodyStyle}" LineHeight="1.4"
+                               HorizontalOptions="FillAndExpand" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

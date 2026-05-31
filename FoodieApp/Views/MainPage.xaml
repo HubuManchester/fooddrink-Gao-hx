@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FoodieApp.ViewModels"
+             xmlns:models="clr-namespace:FoodieApp.Models"
+             x:Class="FoodieApp.Views.MainPage"
+             x:DataType="vm:MainViewModel"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="0">
+
+            <!-- Greeting banner -->
+            <Frame BackgroundColor="{StaticResource Primary}"
+                   CornerRadius="16" Padding="20" Margin="0,8,0,16"
+                   HasShadow="True" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding GreetingMessage}"
+                           FontSize="{DynamicResource GlobalHeadingFontSize}" FontAttributes="Bold" TextColor="White"
+                           SemanticProperties.HeadingLevel="Level1" />
+                    <Label Text="What would you like to cook today?"
+                           FontSize="{DynamicResource GlobalBodyFontSize}" TextColor="White" Opacity="0.85" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Quick action grid -->
+            <Label Text="Quick Actions"
+                   Style="{StaticResource SubheadingStyle}"
+                   Margin="0,0,0,10" />
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto"
+                  ColumnSpacing="10" RowSpacing="10" Margin="0,0,0,20">
+
+                <Frame Grid.Row="0" Grid.Column="0" Style="{StaticResource CardStyle}" Padding="12">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToNearbyCommand}" />
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label Text="📍" FontSize="34" HorizontalOptions="Center" />
+                        <Label Text="Nearby" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame Grid.Row="0" Grid.Column="1" Style="{StaticResource CardStyle}" Padding="12">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PickRandomRecipeCommand}" />
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label Text="🎲" FontSize="34" HorizontalOptions="Center" />
+                        <Label Text="Random" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                       BackgroundColor="{StaticResource Accent}"
+                       CornerRadius="14" Padding="14" HasShadow="False" BorderColor="Transparent"
+                       Margin="0">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Shake your phone for a random recipe!"
+                               FontSize="{DynamicResource GlobalBodyFontSize}" FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}" />
+                        <Label Text="The accelerometer listens for a shake gesture at all times on the Home tab."
+                               FontSize="{DynamicResource GlobalCaptionFontSize}" TextColor="{StaticResource TextSecondary}"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Frame>
+
+            </Grid>
+
+            <!-- Featured recipes -->
+            <Label Text="Featured Recipes"
+                   Style="{StaticResource SubheadingStyle}"
+                   Margin="0,0,0,10" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}" HorizontalOptions="Center"
+                               Margin="0,12" />
+
+            <CollectionView ItemsSource="{Binding FeaturedRecipes}"
+                            IsVisible="{Binding IsNotBusy}"
+                            SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Recipe">
+                        <Frame Style="{StaticResource CardStyle}">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}},
+                                                      Path=NavigateToRecipeDetailCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
+                            <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="12">
+                                <Frame Grid.Column="0"
+                                       WidthRequest="52" HeightRequest="52" CornerRadius="26"
+                                       BackgroundColor="{Binding CardColor}"
+                                       Padding="0" HasShadow="False" BorderColor="Transparent"
+                                       VerticalOptions="Center">
+                                    <Label Text="{Binding EmojiThumbnail}" FontSize="26"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Frame>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" Style="{StaticResource BodyStyle}"
+                                           FontAttributes="Bold" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Category}" Style="{StaticResource CaptionStyle}" />
+                                    <Label Text="{Binding TotalTimeDisplay}"
+                                           Style="{StaticResource CaptionStyle}"
+                                           TextColor="{StaticResource Primary}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2"
+                                       Text="{Binding IsFavourite, Converter={StaticResource FavouriteIconConverter}}"
+                                       FontSize="{DynamicResource GlobalSubheadFontSize}" VerticalOptions="Center" />
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center" Margin="0,32" Spacing="8">
+                        <Label Text="No recipes yet." Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center" />
+                        <Label Text="Go to Recipes tab to add some!"
+                               Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

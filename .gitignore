@@ -1,0 +1,25 @@
+# Visual Studio / .NET
+.vs/
+.dotnet-home/
+bin/
+obj/
+**/bin/
+**/obj/
+
+# MAUI / Android build outputs
+*.apk
+*.aab
+*.idsig
+*.keystore
+*.pdb
+FoodDrinkApp_GitHub_Upload.zip
+
+# User-specific files
+*.user
+*.suo
+*.rsuser
+
+# OS files
+Thumbs.db
+Desktop.ini
+
