@@ -9,9 +9,9 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         // Register push-navigation routes not in the tab bar
-        Routing.RegisterRoute(nameof(RecipeDetailPage),      typeof(RecipeDetailPage));
-        Routing.RegisterRoute(nameof(AddRecipePage),         typeof(AddRecipePage));
+        Routing.RegisterRoute(nameof(RecipeDetailPage), typeof(RecipeDetailPage));
+        Routing.RegisterRoute(nameof(AddRecipePage),    typeof(AddRecipePage));
         Routing.RegisterRoute(nameof(NearbyRestaurantsPage), typeof(NearbyRestaurantsPage));
-        Routing.RegisterRoute(nameof(HelpPage),              typeof(HelpPage));
+        Routing.RegisterRoute(nameof(HelpPage),         typeof(HelpPage));
     }
 }

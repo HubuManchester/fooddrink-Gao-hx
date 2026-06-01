@@ -21,10 +21,9 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        // Services - singleton lifetime so state persists across pages
+        // Services - singleton lifetime so hardware listeners persist across pages
         builder.Services.AddSingleton<IRecipeService,         RecipeService>();
         builder.Services.AddSingleton<ISettingsService,       SettingsService>();
-        // Hardware services still use stub implementations - real hardware added in v3
         builder.Services.AddSingleton<IShakeService,          ShakeService>();
         builder.Services.AddSingleton<IBarcodeScannerService, BarcodeScannerService>();
         builder.Services.AddSingleton<ILocationService,       LocationService>();

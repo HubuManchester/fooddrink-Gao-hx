@@ -9,7 +9,7 @@ namespace FoodieApp.ViewModels;
 
 // ── Main / Home ───────────────────────────────────────────────────────────────
 
-/// <summary>ViewModel for the home dashboard. Shake hardware support will be added in v3.</summary>
+/// <summary>ViewModel for the home dashboard. Shake-to-random-recipe uses the accelerometer.</summary>
 public partial class MainViewModel : BaseViewModel
 {
     private readonly IRecipeService _recipes;
@@ -222,8 +222,12 @@ public partial class RecipeListViewModel : BaseViewModel
 // ── Recipe Detail ─────────────────────────────────────────────────────────────
 
 /// <summary>
-/// ViewModel for recipe detail with step-by-step cooking mode.
-/// TTS hardware support will be wired to real speech in v3.
+/// ViewModel for recipe detail with step-by-step cooking mode and TTS.
+/// Uses two independent IsSpeaking flags so the "Read Aloud" button at the
+/// top (reads all steps) and the one inside Cooking Mode (reads current step)
+/// never affect each other's icon state.
+/// When Stop is called the IsReading flags reset synchronously so the UI
+/// button text updates immediately without waiting for SpeakAsync to finish.
 /// </summary>
 [QueryProperty(nameof(Recipe), "Recipe")]
 public partial class RecipeDetailViewModel : BaseViewModel
@@ -235,16 +239,23 @@ public partial class RecipeDetailViewModel : BaseViewModel
     [ObservableProperty] private Recipe? _recipe;
     [ObservableProperty] private int     _currentStepIndex;
     [ObservableProperty] private bool    _isCookingMode;
-    [ObservableProperty] private bool    _isReadingIngredients;
-    [ObservableProperty] private bool    _isReadingAll;
-    [ObservableProperty] private bool    _isReadingStep;
+
+    // Separate speaking flags so each Read Aloud button has independent state
+    [ObservableProperty] private bool _isReadingIngredients;
+    [ObservableProperty] private bool _isReadingAll;
+    [ObservableProperty] private bool _isReadingStep;
+
     [ObservableProperty] private bool    _isFavourite;
     [ObservableProperty] private int     _servingMultiplier = 1;
+
+    // Full-screen photo overlay
     [ObservableProperty] private string  _selectedPhotoUrl = string.Empty;
     [ObservableProperty] private bool    _isPhotoFullScreen;
 
     public bool   IsTtsEnabled  => _settings.IsTextToSpeechEnabled;
-    public void   RefreshTtsEnabled() => OnPropertyChanged(nameof(IsTtsEnabled));
+
+    public void RefreshTtsEnabled() => OnPropertyChanged(nameof(IsTtsEnabled));
+
     public bool   HasFoodImages => Recipe?.FoodImageUrls?.Count > 0;
     public bool   CanGoPrev    => CurrentStepIndex > 0;
     public bool   CanGoNext    => Recipe != null && CurrentStepIndex < Recipe.Steps.Count - 1;
@@ -269,13 +280,22 @@ public partial class RecipeDetailViewModel : BaseViewModel
         OnPropertyChanged(nameof(HasFoodImages));
     }
 
+    // ── Read Ingredients aloud ────────────────────────────────────────────────
+
+    /// <summary>
+    /// Reads the ingredients list aloud.
+    /// Tapping while reading immediately stops speech and resets the button state.
+    /// </summary>
     [RelayCommand]
     private async Task ReadIngredientsAsync()
     {
         if (Recipe == null || !_settings.IsTextToSpeechEnabled) return;
-        if (IsReadingIngredients) { IsReadingIngredients = false; _tts.Stop(); return; }
+
+        if (IsReadingIngredients) { IsReadingIngredients = false; _tts.Stop(); }
+
         if (IsReadingAll)  { IsReadingAll  = false; _tts.Stop(); }
         if (IsReadingStep) { IsReadingStep = false; _tts.Stop(); }
+
         IsReadingIngredients = true;
         try
         {
@@ -283,16 +303,28 @@ public partial class RecipeDetailViewModel : BaseViewModel
                        string.Join(". ", Recipe.Ingredients);
             await _tts.SpeakAsync(text);
         }
-        finally { IsReadingIngredients = false; }
+        finally
+        {
+            IsReadingIngredients = false;
+        }
     }
 
+    // ── Read all Instructions aloud ───────────────────────────────────────────
+
+    /// <summary>
+    /// Reads every cooking step aloud from beginning to end.
+    /// Tapping while reading immediately stops speech and resets the button state.
+    /// </summary>
     [RelayCommand]
     private async Task ReadAllAsync()
     {
         if (Recipe == null || !_settings.IsTextToSpeechEnabled) return;
-        if (IsReadingAll) { IsReadingAll = false; _tts.Stop(); return; }
+
+        if (IsReadingAll) { IsReadingAll = false; _tts.Stop(); }
+
         if (IsReadingIngredients) { IsReadingIngredients = false; _tts.Stop(); }
         if (IsReadingStep)        { IsReadingStep        = false; _tts.Stop(); }
+
         IsReadingAll = true;
         try
         {
@@ -300,21 +332,40 @@ public partial class RecipeDetailViewModel : BaseViewModel
                            string.Join(". Next step: ", Recipe.Steps);
             await _tts.SpeakAsync(fullText);
         }
-        finally { IsReadingAll = false; }
+        finally
+        {
+            IsReadingAll = false;
+        }
     }
 
+    // ── Read current cooking step aloud ──────────────────────────────────────
+
+    /// <summary>
+    /// Reads only the currently displayed cooking-mode step aloud.
+    /// Tapping while reading immediately stops speech and resets the button state.
+    /// </summary>
     [RelayCommand]
     private async Task ReadAloudAsync()
     {
         if (!_settings.IsTextToSpeechEnabled) return;
-        if (IsReadingStep) { IsReadingStep = false; _tts.Stop(); return; }
+
+        if (IsReadingStep) { IsReadingStep = false; _tts.Stop(); }
+
         if (IsReadingIngredients) { IsReadingIngredients = false; _tts.Stop(); }
         if (IsReadingAll)         { IsReadingAll         = false; _tts.Stop(); }
+
         IsReadingStep = true;
-        try { await _tts.SpeakAsync(CurrentStep); }
-        finally { IsReadingStep = false; }
+        try
+        {
+            await _tts.SpeakAsync(CurrentStep);
+        }
+        finally
+        {
+            IsReadingStep = false;
+        }
     }
 
+    /// <summary>Stops all active speech from any external trigger.</summary>
     [RelayCommand]
     private void StopSpeaking()
     {
@@ -325,10 +376,20 @@ public partial class RecipeDetailViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void NextStep() { if (CanGoNext) { CurrentStepIndex++; NotifyStep(); } }
+    private void NextStep()
+    {
+        if (!CanGoNext) return;
+        CurrentStepIndex++;
+        NotifyStep();
+    }
 
     [RelayCommand]
-    private void PrevStep() { if (CanGoPrev) { CurrentStepIndex--; NotifyStep(); } }
+    private void PrevStep()
+    {
+        if (!CanGoPrev) return;
+        CurrentStepIndex--;
+        NotifyStep();
+    }
 
     [RelayCommand]
     private void ToggleCookingMode()
@@ -338,6 +399,10 @@ public partial class RecipeDetailViewModel : BaseViewModel
         NotifyStep();
     }
 
+    /// <summary>
+    /// Toggles the favourite flag both in the service and the local IsFavourite property
+    /// so the toolbar icon updates without needing a full reload.
+    /// </summary>
     [RelayCommand]
     private async Task ToggleFavouriteAsync()
     {
@@ -367,17 +432,33 @@ public partial class RecipeDetailViewModel : BaseViewModel
             new Dictionary<string, object> { { "EditRecipe", Recipe } });
     }
 
+    /// <summary>Opens the full-screen photo overlay for the tapped image URL.</summary>
     [RelayCommand]
-    private void ViewPhoto(string url) { SelectedPhotoUrl = url; IsPhotoFullScreen = true; }
+    private void ViewPhoto(string url)
+    {
+        SelectedPhotoUrl  = url;
+        IsPhotoFullScreen = true;
+    }
+
+    /// <summary>Closes the full-screen photo overlay.</summary>
+    [RelayCommand]
+    private void ClosePhoto()
+    {
+        IsPhotoFullScreen = false;
+        SelectedPhotoUrl  = string.Empty;
+    }
 
     [RelayCommand]
-    private void ClosePhoto() { IsPhotoFullScreen = false; SelectedPhotoUrl = string.Empty; }
+    private void IncrementServings()
+    {
+        if (ServingMultiplier < 10) ServingMultiplier++;
+    }
 
     [RelayCommand]
-    private void IncrementServings() { if (ServingMultiplier < 10) ServingMultiplier++; }
-
-    [RelayCommand]
-    private void DecrementServings() { if (ServingMultiplier > 1) ServingMultiplier--; }
+    private void DecrementServings()
+    {
+        if (ServingMultiplier > 1) ServingMultiplier--;
+    }
 
     private void NotifyStep()
     {
