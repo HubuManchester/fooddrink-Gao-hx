@@ -13,18 +13,18 @@ namespace FoodieApp.ViewModels;
 public partial class BarcodeScannerViewModel : BaseViewModel
 {
     private readonly IBarcodeScannerService _scanner;
-    private readonly INutritionService      _nutrition;
+    private readonly INutritionService _nutrition;
 
     [ObservableProperty] private NutritionInfo? _nutritionInfo;
-    [ObservableProperty] private bool   _hasResult;
+    [ObservableProperty] private bool _hasResult;
     [ObservableProperty] private string _statusMessage = "Scan a product barcode to get nutrition info";
     [ObservableProperty] private ObservableCollection<NutritionInfo> _history = new();
 
     public BarcodeScannerViewModel(IBarcodeScannerService scanner, INutritionService nutrition)
     {
-        _scanner   = scanner;
+        _scanner = scanner;
         _nutrition = nutrition;
-        Title      = "Barcode Scanner";
+        Title = "Barcode Scanner";
     }
 
     /// <summary>Opens the device camera to capture a photo and decode the barcode from it.</summary>
@@ -46,7 +46,7 @@ public partial class BarcodeScannerViewModel : BaseViewModel
         await ExecuteSafelyAsync(async () =>
         {
             StatusMessage = useCamera ? "Opening camera..." : "Waiting for barcode input...";
-            HasResult     = false;
+            HasResult = false;
 
             BarcodeResult result = useCamera
                 ? await _scanner.ScanBarcodeAsync()
@@ -71,7 +71,7 @@ public partial class BarcodeScannerViewModel : BaseViewModel
             }
 
             NutritionInfo = info;
-            HasResult     = true;
+            HasResult = true;
             StatusMessage = "Product found!";
             History.Insert(0, NutritionInfo);
             if (History.Count > 20) History.RemoveAt(History.Count - 1);
@@ -82,7 +82,7 @@ public partial class BarcodeScannerViewModel : BaseViewModel
     private void ClearResult()
     {
         NutritionInfo = null;
-        HasResult     = false;
+        HasResult = false;
         StatusMessage = "Scan a product barcode to get nutrition info";
     }
 
@@ -92,7 +92,7 @@ public partial class BarcodeScannerViewModel : BaseViewModel
     private void SelectHistory(NutritionInfo item)
     {
         NutritionInfo = item;
-        HasResult     = true;
+        HasResult = true;
     }
 }
 
@@ -108,11 +108,11 @@ public partial class MealPlannerViewModel : BaseViewModel
 
     private static readonly string[] MealTypes = { "Breakfast", "Lunch", "Dinner", "Snack" };
 
-    [ObservableProperty] private ObservableCollection<MealPlanEntry> _weeklyPlan  = new();
-    [ObservableProperty] private ObservableCollection<MealPlanEntry> _dayEntries  = new();
-    [ObservableProperty] private int    _selectedDayIndex;
+    [ObservableProperty] private ObservableCollection<MealPlanEntry> _weeklyPlan = new();
+    [ObservableProperty] private ObservableCollection<MealPlanEntry> _dayEntries = new();
+    [ObservableProperty] private int _selectedDayIndex;
     [ObservableProperty] private string _selectedDayName = "Monday";
-    [ObservableProperty] private ObservableCollection<Recipe> _availableRecipes   = new();
+    [ObservableProperty] private ObservableCollection<Recipe> _availableRecipes = new();
     [ObservableProperty] private double _dailyCalories;
     [ObservableProperty] private double _dailyProtein;
     [ObservableProperty] private double _dailyCarbs;
@@ -121,7 +121,7 @@ public partial class MealPlannerViewModel : BaseViewModel
     public MealPlannerViewModel(IRecipeService recipes)
     {
         _recipes = recipes;
-        Title    = "Meal Planner";
+        Title = "Meal Planner";
         BuildEmptyPlan();
         UpdateDayView();
     }
@@ -146,7 +146,7 @@ public partial class MealPlannerViewModel : BaseViewModel
             await Shell.Current.DisplayAlert("No Recipes", "Add some recipes first.", "OK");
             return;
         }
-        var names  = AvailableRecipes.Select(r => r.Name).ToArray();
+        var names = AvailableRecipes.Select(r => r.Name).ToArray();
         var chosen = await Shell.Current.DisplayActionSheet(
             $"{entry.DayName} - {entry.MealType}", "Cancel", null, names);
         if (string.IsNullOrEmpty(chosen) || chosen == "Cancel") return;
@@ -171,7 +171,7 @@ public partial class MealPlannerViewModel : BaseViewModel
         if (int.TryParse(dayIndexStr, out var idx))
         {
             SelectedDayIndex = idx;
-            SelectedDayName  = DayNames[idx];
+            SelectedDayName = DayNames[idx];
         }
         UpdateDayView();
         RecalcNutrition();
@@ -198,9 +198,9 @@ public partial class MealPlannerViewModel : BaseViewModel
             .Where(e => e.DayIndex == SelectedDayIndex && e.Recipe != null)
             .Select(e => e.Recipe!);
         DailyCalories = day.Sum(r => r.CaloriesPerServing);
-        DailyProtein  = day.Sum(r => r.ProteinGrams);
-        DailyCarbs    = day.Sum(r => r.CarbohydratesGrams);
-        DailyFat      = day.Sum(r => r.FatGrams);
+        DailyProtein = day.Sum(r => r.ProteinGrams);
+        DailyCarbs = day.Sum(r => r.CarbohydratesGrams);
+        DailyFat = day.Sum(r => r.FatGrams);
     }
 
     private void RefreshEntry(MealPlanEntry entry)
@@ -220,13 +220,13 @@ public partial class NearbyRestaurantsViewModel : BaseViewModel
     private readonly ILocationService _location;
 
     [ObservableProperty] private string _currentAddress = "Tap 'Get My Location' to start";
-    [ObservableProperty] private bool   _hasLocation;
+    [ObservableProperty] private bool _hasLocation;
     [ObservableProperty] private ObservableCollection<RestaurantItem> _restaurants = new();
 
     public NearbyRestaurantsViewModel(ILocationService location)
     {
         _location = location;
-        Title     = "Nearby Restaurants";
+        Title = "Nearby Restaurants";
     }
 
     [RelayCommand]
@@ -238,7 +238,7 @@ public partial class NearbyRestaurantsViewModel : BaseViewModel
             var loc = await _location.GetCurrentLocationAsync();
             if (loc == null) { CurrentAddress = "Could not get location."; return; }
 
-            HasLocation    = true;
+            HasLocation = true;
             CurrentAddress = await _location.GetAddressAsync(loc.Latitude, loc.Longitude);
             ShowSimulatedRestaurants(loc.Latitude, loc.Longitude);
         }, "Location Error");
@@ -273,10 +273,12 @@ public partial class NearbyRestaurantsViewModel : BaseViewModel
         foreach (var (name, cuisine, emoji) in data)
             Restaurants.Add(new RestaurantItem
             {
-                Name      = name, Cuisine = cuisine, Emoji = emoji,
-                Rating    = Math.Round(3.5 + rng.NextDouble() * 1.5, 1),
-                Distance  = $"{(rng.NextDouble() * 1.8 + 0.1):F1} km",
-                Latitude  = lat + (rng.NextDouble() - 0.5) * 0.02,
+                Name = name,
+                Cuisine = cuisine,
+                Emoji = emoji,
+                Rating = Math.Round(3.5 + rng.NextDouble() * 1.5, 1),
+                Distance = $"{(rng.NextDouble() * 1.8 + 0.1):F1} km",
+                Latitude = lat + (rng.NextDouble() - 0.5) * 0.02,
                 Longitude = lng + (rng.NextDouble() - 0.5) * 0.02
             });
     }
@@ -285,12 +287,12 @@ public partial class NearbyRestaurantsViewModel : BaseViewModel
 /// <summary>Display model for a nearby restaurant card.</summary>
 public class RestaurantItem
 {
-    public string Name      { get; set; } = string.Empty;
-    public string Cuisine   { get; set; } = string.Empty;
-    public string Emoji     { get; set; } = string.Empty;
-    public double Rating    { get; set; }
-    public string Distance  { get; set; } = string.Empty;
-    public double Latitude  { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Cuisine { get; set; } = string.Empty;
+    public string Emoji { get; set; } = string.Empty;
+    public double Rating { get; set; }
+    public string Distance { get; set; } = string.Empty;
+    public double Latitude { get; set; }
     public double Longitude { get; set; }
     public string RatingDisplay => $"{Rating:F1} stars";
 }
@@ -302,20 +304,20 @@ public partial class SettingsViewModel : BaseViewModel
 {
     private readonly ISettingsService _settings;
 
-    [ObservableProperty] private bool   _isDarkMode;
-    [ObservableProperty] private bool   _isTtsEnabled;
-    [ObservableProperty] private int    _fontSizeIndex;
+    [ObservableProperty] private bool _isDarkMode;
+    [ObservableProperty] private bool _isTtsEnabled;
+    [ObservableProperty] private int _fontSizeIndex;
 
     public List<string> FontSizeLabels { get; } = new() { "Small", "Medium", "Large" };
 
     public SettingsViewModel(ISettingsService settings)
     {
         _settings = settings;
-        Title     = "Settings";
+        Title = "Settings";
 
-        IsDarkMode      = settings.IsDarkMode;
-        IsTtsEnabled    = settings.IsTextToSpeechEnabled;
-        FontSizeIndex   = settings.FontSizeIndex;
+        IsDarkMode = settings.IsDarkMode;
+        IsTtsEnabled = settings.IsTextToSpeechEnabled;
+        FontSizeIndex = settings.FontSizeIndex;
     }
 
     [RelayCommand]
@@ -337,7 +339,7 @@ public partial class SettingsViewModel : BaseViewModel
         _settings.IsDarkMode = value;
         if (Application.Current is App app) app.ApplyTheme(value);
     }
-    partial void OnIsTtsEnabledChanged(bool value)    => _settings.IsTextToSpeechEnabled = value;
+    partial void OnIsTtsEnabledChanged(bool value) => _settings.IsTextToSpeechEnabled = value;
 
     partial void OnFontSizeIndexChanged(int value)
     {
@@ -374,34 +376,39 @@ public partial class AddRecipeViewModel : BaseViewModel
     /// <summary>Photo count label shown on the button.</summary>
     public string PhotoCountText => $"Add Photo ({CapturedPhotoPaths.Count}/5)";
 
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsNameValid), nameof(NameError))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNameValid), nameof(NameError))]
     private string _name = string.Empty;
 
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsDescriptionValid), nameof(DescriptionError))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDescriptionValid), nameof(DescriptionError))]
     private string _description = string.Empty;
 
-    [ObservableProperty] private string _category   = "Dinner";
-    [ObservableProperty] private string _cuisine    = "Other";
+    [ObservableProperty] private string _category = "Dinner";
+    [ObservableProperty] private string _cuisine = "Other";
     [ObservableProperty] private string _difficulty = "Easy";
 
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsPrepValid), nameof(PrepTimeError))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsPrepValid), nameof(PrepTimeError))]
     private string _prepTimeText = string.Empty;
 
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsCookValid), nameof(CookTimeError))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsCookValid), nameof(CookTimeError))]
     private string _cookTimeText = string.Empty;
 
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsServingsValid), nameof(ServingsError))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsServingsValid), nameof(ServingsError))]
     private string _servingsText = string.Empty;
 
     [ObservableProperty] private string _ingredientsText = string.Empty;
-    [ObservableProperty] private string _stepsText       = string.Empty;
-    [ObservableProperty] private string _caloriesText    = string.Empty;
-    [ObservableProperty] private string _proteinText     = string.Empty;
-    [ObservableProperty] private string _carbsText       = string.Empty;
-    [ObservableProperty] private string _fatText         = string.Empty;
-    [ObservableProperty] private string _notes           = string.Empty;
-    [ObservableProperty] private string _selectedEmoji   = "🍽️";
-    [ObservableProperty] private bool   _isEditMode;
+    [ObservableProperty] private string _stepsText = string.Empty;
+    [ObservableProperty] private string _caloriesText = string.Empty;
+    [ObservableProperty] private string _proteinText = string.Empty;
+    [ObservableProperty] private string _carbsText = string.Empty;
+    [ObservableProperty] private string _fatText = string.Empty;
+    [ObservableProperty] private string _notes = string.Empty;
+    [ObservableProperty] private string _selectedEmoji = "🍽️";
+    [ObservableProperty] private bool _isEditMode;
 
     // Populated via Shell QueryProperty when navigating from the edit button
     public Recipe? EditRecipe
@@ -409,25 +416,25 @@ public partial class AddRecipeViewModel : BaseViewModel
         set
         {
             if (value == null) return;
-            _editingId      = value.Id;
-            IsEditMode      = true;
-            Title           = "Edit Recipe";
-            Name            = value.Name;
-            Description     = value.Description;
-            Category        = value.Category;
-            Cuisine         = value.Cuisine;
-            Difficulty      = value.Difficulty;
-            PrepTimeText    = value.PrepTimeMinutes.ToString();
-            CookTimeText    = value.CookTimeMinutes.ToString();
-            ServingsText    = value.Servings.ToString();
+            _editingId = value.Id;
+            IsEditMode = true;
+            Title = "Edit Recipe";
+            Name = value.Name;
+            Description = value.Description;
+            Category = value.Category;
+            Cuisine = value.Cuisine;
+            Difficulty = value.Difficulty;
+            PrepTimeText = value.PrepTimeMinutes.ToString();
+            CookTimeText = value.CookTimeMinutes.ToString();
+            ServingsText = value.Servings.ToString();
             IngredientsText = string.Join("\n", value.Ingredients);
-            StepsText       = string.Join("\n", value.Steps);
-            CaloriesText    = value.CaloriesPerServing > 0 ? value.CaloriesPerServing.ToString() : "";
-            ProteinText     = value.ProteinGrams > 0      ? value.ProteinGrams.ToString("F1")    : "";
-            CarbsText       = value.CarbohydratesGrams > 0? value.CarbohydratesGrams.ToString("F1"): "";
-            FatText         = value.FatGrams > 0          ? value.FatGrams.ToString("F1")        : "";
-            Notes           = value.Notes;
-            SelectedEmoji   = value.EmojiThumbnail;
+            StepsText = string.Join("\n", value.Steps);
+            CaloriesText = value.CaloriesPerServing > 0 ? value.CaloriesPerServing.ToString() : "";
+            ProteinText = value.ProteinGrams > 0 ? value.ProteinGrams.ToString("F1") : "";
+            CarbsText = value.CarbohydratesGrams > 0 ? value.CarbohydratesGrams.ToString("F1") : "";
+            FatText = value.FatGrams > 0 ? value.FatGrams.ToString("F1") : "";
+            Notes = value.Notes;
+            SelectedEmoji = value.EmojiThumbnail;
 
             // Populate photo thumbnails from existing recipe image URLs
             CapturedPhotoPaths.Clear();
@@ -441,20 +448,20 @@ public partial class AddRecipeViewModel : BaseViewModel
         }
     }
 
-    public bool IsNameValid        => Name.Length >= 3;
+    public bool IsNameValid => Name.Length >= 3;
     public bool IsDescriptionValid => !string.IsNullOrWhiteSpace(Description);
-    public bool IsPrepValid        => int.TryParse(PrepTimeText,  out var v) && v >= 0;
-    public bool IsCookValid        => int.TryParse(CookTimeText,  out var v) && v >= 0;
-    public bool IsServingsValid    => int.TryParse(ServingsText,  out var v) && v >= 1;
+    public bool IsPrepValid => int.TryParse(PrepTimeText, out var v) && v >= 0;
+    public bool IsCookValid => int.TryParse(CookTimeText, out var v) && v >= 0;
+    public bool IsServingsValid => int.TryParse(ServingsText, out var v) && v >= 1;
 
-    public string NameError        => IsNameValid        ? "" : "At least 3 characters required.";
+    public string NameError => IsNameValid ? "" : "At least 3 characters required.";
     public string DescriptionError => IsDescriptionValid ? "" : "Description is required.";
-    public string PrepTimeError    => IsPrepValid        ? "" : "Enter a valid number (minutes).";
-    public string CookTimeError    => IsCookValid        ? "" : "Enter a valid number (minutes).";
-    public string ServingsError    => IsServingsValid    ? "" : "Must be at least 1.";
+    public string PrepTimeError => IsPrepValid ? "" : "Enter a valid number (minutes).";
+    public string CookTimeError => IsCookValid ? "" : "Enter a valid number (minutes).";
+    public string ServingsError => IsServingsValid ? "" : "Must be at least 1.";
 
-    public List<string> Categories   { get; } = new() { "Breakfast", "Lunch", "Dinner", "Snack", "Dessert" };
-    public List<string> Cuisines     { get; } = new() { "Italian", "Indian", "Japanese", "Mexican", "American", "French", "Chinese", "Other" };
+    public List<string> Categories { get; } = new() { "Breakfast", "Lunch", "Dinner", "Snack", "Dessert" };
+    public List<string> Cuisines { get; } = new() { "Italian", "Indian", "Japanese", "Mexican", "American", "French", "Chinese", "Other" };
     public List<string> Difficulties { get; } = new() { "Easy", "Medium", "Hard" };
     public List<string> EmojiOptions { get; } = new()
         { "🍽️","🍝","🍛","🍣","🥗","🥘","🍕","🍔","🌮","🍜","🥞","🍰","🍓","🥑","🥩","🐟" };
@@ -462,8 +469,8 @@ public partial class AddRecipeViewModel : BaseViewModel
     public AddRecipeViewModel(IRecipeService recipes, ICameraService camera)
     {
         _recipes = recipes;
-        _camera  = camera;
-        Title    = "Add Recipe";
+        _camera = camera;
+        Title = "Add Recipe";
     }
 
     [RelayCommand]
@@ -584,11 +591,11 @@ public partial class AddRecipeViewModel : BaseViewModel
         if (!IsNameValid || !IsDescriptionValid || !IsPrepValid || !IsCookValid || !IsServingsValid)
         {
             var missing = new List<string>();
-            if (!IsNameValid)        missing.Add("• Recipe name must be at least 3 characters");
+            if (!IsNameValid) missing.Add("• Recipe name must be at least 3 characters");
             if (!IsDescriptionValid) missing.Add("• Description cannot be empty");
-            if (!IsPrepValid)        missing.Add("• Prep time must be a valid number (minutes)");
-            if (!IsCookValid)        missing.Add("• Cook time must be a valid number (minutes)");
-            if (!IsServingsValid)    missing.Add("• Servings must be at least 1");
+            if (!IsPrepValid) missing.Add("• Prep time must be a valid number (minutes)");
+            if (!IsCookValid) missing.Add("• Cook time must be a valid number (minutes)");
+            if (!IsServingsValid) missing.Add("• Servings must be at least 1");
 
             await Shell.Current.DisplayAlert(
                 "Please fill in the required fields",
@@ -639,37 +646,80 @@ public partial class AddRecipeViewModel : BaseViewModel
                 ? await _recipes.GetRecipeByIdAsync(_editingId)
                 : null;
 
-            var photoUrls = CapturedPhotoPaths
-                .Where(File.Exists)
-                .Select(p => $"file://{p}")
-                .ToList();
-
-            if (photoUrls.Count == 0 && existing?.FoodImageUrls?.Count > 0)
-                photoUrls = existing.FoodImageUrls;
+            // Build the final photo URL list from CapturedPhotoPaths.
+            // CapturedPhotoPaths can hold three kinds of entries:
+            //
+            //   1. Raw local file path — e.g. /data/.../cache/recipe_photo_xxx.jpg
+            //      Written by TakePhotoAsync / PickPhotoAsync in the current session.
+            //      → Verify the file exists, then emit as "file:///path".
+            //
+            //   2. file:// URL — e.g. file:///data/.../recipe_photo_xxx.jpg
+            //      Pre-populated from the saved recipe when entering edit mode
+            //      (FoodImageUrls that were previously local photos).
+            //      → Strip the "file://" prefix to get a bare path, verify the
+            //        file exists, then re-emit as "file:///path".
+            //
+            //   3. Remote URL — e.g. https://images.unsplash.com/...
+            //      Pre-populated from seed recipes or externally sourced images.
+            //      These are not on disk, so File.Exists must NOT be called on them.
+            //      → Keep the URL unchanged.
+            //
+            // Passing a URL string to File.Exists always returns false, which was
+            // causing all remote-URL photos to be silently dropped on every save.
+            // The intentional user deletion of a photo is correctly handled because
+            // RemovePhotoWithConfirmationAsync already removed it from
+            // CapturedPhotoPaths before SaveAsync runs, so the removed entry never
+            // reaches this loop. The old fallback that restored existing.FoodImageUrls
+            // when photoUrls was empty has been removed; if the user deleted all
+            // photos the list should genuinely be empty.
+            var photoUrls = new List<string>();
+            foreach (var entry in CapturedPhotoPaths)
+            {
+                if (entry.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                    entry.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Remote URL — keep as-is, no filesystem check needed.
+                    photoUrls.Add(entry);
+                }
+                else if (entry.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Local file:// URL — extract the bare path and confirm the
+                    // file still exists before including it.
+                    var barePath = entry.Substring("file://".Length);
+                    if (File.Exists(barePath))
+                        photoUrls.Add(entry);
+                }
+                else
+                {
+                    // Raw local path written by TakePhotoAsync / PickPhotoAsync.
+                    if (File.Exists(entry))
+                        photoUrls.Add($"file://{entry}");
+                }
+            }
 
             var recipe = new Recipe
             {
-                Id                 = existing?.Id ?? Guid.NewGuid().ToString(),
-                Name               = Name.Trim(),
-                Description        = Description.Trim(),
-                Category           = Category,
-                Cuisine            = Cuisine,
-                Difficulty         = Difficulty,
-                PrepTimeMinutes    = int.Parse(PrepTimeText),
-                CookTimeMinutes    = int.Parse(CookTimeText),
-                Servings           = int.Parse(ServingsText),
-                Ingredients        = ingredients,
-                Steps              = steps,
-                EmojiThumbnail     = SelectedEmoji,
-                Notes              = Notes.Trim(),
-                CaloriesPerServing = int.TryParse(CaloriesText, out var cal)    ? cal  : 0,
-                ProteinGrams       = double.TryParse(ProteinText, out var pro)  ? pro  : 0,
-                CarbohydratesGrams = double.TryParse(CarbsText,   out var carb) ? carb : 0,
-                FatGrams           = double.TryParse(FatText,     out var fat)  ? fat  : 0,
-                FoodImageUrls      = photoUrls,
-                IsFavourite        = existing?.IsFavourite ?? false,
-                CardColor          = existing?.CardColor ?? RandomColor(),
-                CreatedAt          = existing?.CreatedAt ?? DateTime.UtcNow
+                Id = existing?.Id ?? Guid.NewGuid().ToString(),
+                Name = Name.Trim(),
+                Description = Description.Trim(),
+                Category = Category,
+                Cuisine = Cuisine,
+                Difficulty = Difficulty,
+                PrepTimeMinutes = int.Parse(PrepTimeText),
+                CookTimeMinutes = int.Parse(CookTimeText),
+                Servings = int.Parse(ServingsText),
+                Ingredients = ingredients,
+                Steps = steps,
+                EmojiThumbnail = SelectedEmoji,
+                Notes = Notes.Trim(),
+                CaloriesPerServing = int.TryParse(CaloriesText, out var cal) ? cal : 0,
+                ProteinGrams = double.TryParse(ProteinText, out var pro) ? pro : 0,
+                CarbohydratesGrams = double.TryParse(CarbsText, out var carb) ? carb : 0,
+                FatGrams = double.TryParse(FatText, out var fat) ? fat : 0,
+                FoodImageUrls = photoUrls,
+                IsFavourite = existing?.IsFavourite ?? false,
+                CardColor = existing?.CardColor ?? RandomColor(),
+                CreatedAt = existing?.CreatedAt ?? DateTime.UtcNow
             };
 
             await _recipes.SaveRecipeAsync(recipe);
@@ -700,7 +750,7 @@ public partial class AddRecipeViewModel : BaseViewModel
 
     private static string RandomColor()
     {
-        var colors = new[] { "#E8B89A","#A8D5A2","#C78FC0","#F4A460","#87CEEB","#DDA0DD" };
+        var colors = new[] { "#E8B89A", "#A8D5A2", "#C78FC0", "#F4A460", "#87CEEB", "#DDA0DD" };
         return colors[Random.Shared.Next(colors.Length)];
     }
 }

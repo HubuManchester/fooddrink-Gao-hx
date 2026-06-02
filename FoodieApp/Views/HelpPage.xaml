@@ -7,7 +7,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="0">
 
-            <!-- App intro -->
+            <!-- App intro banner -->
             <Frame BackgroundColor="{StaticResource Primary}"
                    CornerRadius="16" Padding="20" Margin="0,8,0,18"
                    HasShadow="True" BorderColor="Transparent">
@@ -21,7 +21,7 @@
 
             <Label Text="Features Guide" Style="{StaticResource SubheadingStyle}" Margin="0,0,0,12" />
 
-            <!-- Feature 1 -->
+            <!-- Recipes -->
             <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
                 <VerticalStackLayout Spacing="6">
                     <HorizontalStackLayout Spacing="8">
@@ -34,7 +34,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Feature 2 -->
+            <!-- Barcode Scanner -->
             <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
                 <VerticalStackLayout Spacing="6">
                     <HorizontalStackLayout Spacing="8">
@@ -47,7 +47,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Feature 3 -->
+            <!-- Nearby Restaurants -->
             <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
                 <VerticalStackLayout Spacing="6">
                     <HorizontalStackLayout Spacing="8">
@@ -60,7 +60,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Feature 4 -->
+            <!-- Text to Speech -->
             <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
                 <VerticalStackLayout Spacing="6">
                     <HorizontalStackLayout Spacing="8">
@@ -73,7 +73,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Feature 5 -->
+            <!-- Shake for Random Recipe -->
             <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
                 <VerticalStackLayout Spacing="6">
                     <HorizontalStackLayout Spacing="8">
@@ -86,8 +86,8 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Feature 6 -->
-            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+            <!-- Meal Planner -->
+            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,30">
                 <VerticalStackLayout Spacing="6">
                     <HorizontalStackLayout Spacing="8">
                         <Label Text="📅" FontSize="{DynamicResource GlobalHeadingFontSize}" />
@@ -96,39 +96,6 @@
                     </HorizontalStackLayout>
                     <Label Text="Plan your weekly meals by assigning recipes to Breakfast, Lunch, Dinner and Snack slots for each day. The daily nutrition totals update automatically. Swipe left on any slot to clear it."
                            Style="{StaticResource BodyStyle}" LineHeight="1.4" />
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- Tips -->
-            <Label Text="Tips" Style="{StaticResource SubheadingStyle}" Margin="0,8,0,10" />
-            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,30">
-                <VerticalStackLayout Spacing="10">
-                    <HorizontalStackLayout Spacing="8">
-                        <Label Text="Tip" FontSize="{DynamicResource GlobalCaptionFontSize}" FontAttributes="Bold"
-                               TextColor="White" BackgroundColor="{StaticResource Primary}"
-                               Padding="6,3" VerticalOptions="Start" />
-                        <Label Text="Open a recipe and tap 'Start Cooking Mode' for a big, easy-to-read step-by-step guide."
-                               Style="{StaticResource BodyStyle}" LineHeight="1.4"
-                               HorizontalOptions="FillAndExpand" />
-                    </HorizontalStackLayout>
-                    <BoxView HeightRequest="1" Color="{StaticResource DividerColor}" />
-                    <HorizontalStackLayout Spacing="8">
-                        <Label Text="Tip" FontSize="{DynamicResource GlobalCaptionFontSize}" FontAttributes="Bold"
-                               TextColor="White" BackgroundColor="{StaticResource Primary}"
-                               Padding="6,3" VerticalOptions="Start" />
-                        <Label Text="Use the + and - buttons on a recipe to scale the serving size up or down."
-                               Style="{StaticResource BodyStyle}" LineHeight="1.4"
-                               HorizontalOptions="FillAndExpand" />
-                    </HorizontalStackLayout>
-                    <BoxView HeightRequest="1" Color="{StaticResource DividerColor}" />
-                    <HorizontalStackLayout Spacing="8">
-                        <Label Text="Tip" FontSize="{DynamicResource GlobalCaptionFontSize}" FontAttributes="Bold"
-                               TextColor="White" BackgroundColor="{StaticResource Primary}"
-                               Padding="6,3" VerticalOptions="Start" />
-                        <Label Text="Tap Share on any recipe to send it to friends via any app on your device."
-                               Style="{StaticResource BodyStyle}" LineHeight="1.4"
-                               HorizontalOptions="FillAndExpand" />
-                    </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Frame>
 

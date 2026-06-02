@@ -29,8 +29,23 @@
 
                     <VerticalStackLayout Spacing="6">
                         <Label Text="Font Size" Style="{StaticResource BodyStyle}" FontAttributes="Bold" />
+
+                        <!--
+                            On Android the Picker renders its selected text using the platform
+                            EditText widget. When no TextColor is set explicitly the widget
+                            inherits the window's default text colour, which on some Android
+                            versions is white — invisible against the white card background in
+                            light mode. Binding TextColor via AppThemeBinding ensures the text
+                            is always readable regardless of the active theme.
+                        -->
                         <Picker ItemsSource="{Binding FontSizeLabels}"
-                                SelectedIndex="{Binding FontSizeIndex}" />
+                                SelectedIndex="{Binding FontSizeIndex}"
+                                FontSize="{DynamicResource GlobalBodyFontSize}">
+                            <Picker.TextColor>
+                                <AppThemeBinding Light="{StaticResource TextPrimary}"
+                                                 Dark="{StaticResource DarkTextPrimary}" />
+                            </Picker.TextColor>
+                        </Picker>
                     </VerticalStackLayout>
 
                 </VerticalStackLayout>

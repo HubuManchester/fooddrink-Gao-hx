@@ -13,7 +13,7 @@ namespace FoodieApp.ViewModels;
 public partial class MainViewModel : BaseViewModel
 {
     private readonly IRecipeService _recipes;
-    private readonly IShakeService  _shake;
+    private readonly IShakeService _shake;
 
     [ObservableProperty] private ObservableCollection<Recipe> _featuredRecipes = new();
     [ObservableProperty] private string _greetingMessage = string.Empty;
@@ -21,8 +21,8 @@ public partial class MainViewModel : BaseViewModel
     public MainViewModel(IRecipeService recipes, IShakeService shake)
     {
         _recipes = recipes;
-        _shake   = shake;
-        Title    = "FoodieApp";
+        _shake = shake;
+        Title = "FoodieApp";
         SetGreeting();
         _shake.ShakeDetected += OnShakeDetected;
         _shake.Start();
@@ -70,10 +70,10 @@ public partial class MainViewModel : BaseViewModel
         var h = DateTime.Now.Hour;
         GreetingMessage = h switch
         {
-            >= 5  and < 12 => "Good Morning!",
+            >= 5 and < 12 => "Good Morning!",
             >= 12 and < 17 => "Good Afternoon!",
             >= 17 and < 21 => "Good Evening!",
-            _              => "Good Night!"
+            _ => "Good Night!"
         };
     }
 
@@ -87,16 +87,26 @@ public partial class MainViewModel : BaseViewModel
 
 // ── Recipe List ───────────────────────────────────────────────────────────────
 
-/// <summary>ViewModel for the recipe browse/search page with category filtering and favourites.</summary>
+/// <summary>
+/// ViewModel for the recipe browse/search page with category filtering and favourites.
+/// Pull-to-refresh shuffles the recipe order so the list visibly changes on every refresh.
+/// </summary>
 public partial class RecipeListViewModel : BaseViewModel
 {
     private readonly IRecipeService _recipes;
 
-    [ObservableProperty] private ObservableCollection<Recipe> _allRecipes      = new();
+    [ObservableProperty] private ObservableCollection<Recipe> _allRecipes = new();
     [ObservableProperty] private ObservableCollection<Recipe> _filteredRecipes = new();
-    [ObservableProperty] private string _searchQuery        = string.Empty;
-    [ObservableProperty] private bool   _showFavouritesOnly;
-    [ObservableProperty] private string _selectedCategory   = "All";
+    [ObservableProperty] private string _searchQuery = string.Empty;
+    [ObservableProperty] private bool _showFavouritesOnly;
+    [ObservableProperty] private string _selectedCategory = "All";
+
+    /// <summary>
+    /// Bound two-way to RefreshView.IsRefreshing in XAML.
+    /// Set to false in the finally block of RefreshRecipesAsync so the
+    /// pull-to-refresh spinner is dismissed as soon as the reload finishes.
+    /// </summary>
+    [ObservableProperty] private bool _isRefreshing;
 
     public List<string> Categories { get; } =
         new() { "All", "Breakfast", "Lunch", "Dinner", "Snack", "Dessert" };
@@ -104,19 +114,69 @@ public partial class RecipeListViewModel : BaseViewModel
     public RecipeListViewModel(IRecipeService recipes)
     {
         _recipes = recipes;
-        Title    = "Recipes";
+        Title = "Recipes";
     }
 
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Replaces the contents of AllRecipes with the given sequence,
+    /// then calls ApplyFilter so FilteredRecipes is always in sync.
+    /// </summary>
+    private void PopulateAllRecipes(IEnumerable<Recipe> source)
+    {
+        AllRecipes.Clear();
+        foreach (var r in source)
+            AllRecipes.Add(r);
+        ApplyFilter();
+    }
+
+    // ── Commands ──────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Initial / returning load: preserves the order returned by the service.
+    /// Called from OnAppearing in the code-behind.
+    /// </summary>
     [RelayCommand]
     private async Task LoadRecipesAsync()
     {
         await ExecuteSafelyAsync(async () =>
         {
             var all = await _recipes.GetAllRecipesAsync();
-            AllRecipes.Clear();
-            foreach (var r in all) AllRecipes.Add(r);
-            ApplyFilter();
+            PopulateAllRecipes(all);
         });
+    }
+
+    /// <summary>
+    /// Triggered by the pull-to-refresh gesture.
+    /// Fetches a fresh copy of the recipe list and shuffles it so the order
+    /// is visibly different from what was shown before the gesture — recipes
+    /// that were near the bottom surface near the top, and vice versa.
+    /// IsRefreshing is reset in the finally block so the spinner always clears.
+    /// </summary>
+    [RelayCommand]
+    private async Task RefreshRecipesAsync()
+    {
+        try
+        {
+            // ToList() creates an independent copy so the shuffle does not
+            // mutate the service's internal cache.
+            var all = (await _recipes.GetAllRecipesAsync()).ToList();
+
+            // Fisher-Yates shuffle — guarantees a uniformly random permutation.
+            for (int i = all.Count - 1; i > 0; i--)
+            {
+                int j = Random.Shared.Next(i + 1);
+                (all[i], all[j]) = (all[j], all[i]);
+            }
+
+            PopulateAllRecipes(all);
+        }
+        finally
+        {
+            // Always clear the spinner, even when an exception is thrown.
+            IsRefreshing = false;
+        }
     }
 
     [RelayCommand]
@@ -130,9 +190,7 @@ public partial class RecipeListViewModel : BaseViewModel
         await ExecuteSafelyAsync(async () =>
         {
             var results = await _recipes.SearchRecipesAsync(SearchQuery);
-            AllRecipes.Clear();
-            foreach (var r in results) AllRecipes.Add(r);
-            ApplyFilter();
+            PopulateAllRecipes(results);
 
             if (results.Count == 0)
             {
@@ -233,49 +291,49 @@ public partial class RecipeListViewModel : BaseViewModel
 public partial class RecipeDetailViewModel : BaseViewModel
 {
     private readonly ITextToSpeechService _tts;
-    private readonly IRecipeService       _recipes;
-    private readonly ISettingsService     _settings;
+    private readonly IRecipeService _recipes;
+    private readonly ISettingsService _settings;
 
     [ObservableProperty] private Recipe? _recipe;
-    [ObservableProperty] private int     _currentStepIndex;
-    [ObservableProperty] private bool    _isCookingMode;
+    [ObservableProperty] private int _currentStepIndex;
+    [ObservableProperty] private bool _isCookingMode;
 
     // Separate speaking flags so each Read Aloud button has independent state
     [ObservableProperty] private bool _isReadingIngredients;
     [ObservableProperty] private bool _isReadingAll;
     [ObservableProperty] private bool _isReadingStep;
 
-    [ObservableProperty] private bool    _isFavourite;
-    [ObservableProperty] private int     _servingMultiplier = 1;
+    [ObservableProperty] private bool _isFavourite;
+    [ObservableProperty] private int _servingMultiplier = 1;
 
     // Full-screen photo overlay
-    [ObservableProperty] private string  _selectedPhotoUrl = string.Empty;
-    [ObservableProperty] private bool    _isPhotoFullScreen;
+    [ObservableProperty] private string _selectedPhotoUrl = string.Empty;
+    [ObservableProperty] private bool _isPhotoFullScreen;
 
-    public bool   IsTtsEnabled  => _settings.IsTextToSpeechEnabled;
+    public bool IsTtsEnabled => _settings.IsTextToSpeechEnabled;
 
     public void RefreshTtsEnabled() => OnPropertyChanged(nameof(IsTtsEnabled));
 
-    public bool   HasFoodImages => Recipe?.FoodImageUrls?.Count > 0;
-    public bool   CanGoPrev    => CurrentStepIndex > 0;
-    public bool   CanGoNext    => Recipe != null && CurrentStepIndex < Recipe.Steps.Count - 1;
-    public string CurrentStep  => Recipe?.Steps.ElementAtOrDefault(CurrentStepIndex) ?? string.Empty;
+    public bool HasFoodImages => Recipe?.FoodImageUrls?.Count > 0;
+    public bool CanGoPrev => CurrentStepIndex > 0;
+    public bool CanGoNext => Recipe != null && CurrentStepIndex < Recipe.Steps.Count - 1;
+    public string CurrentStep => Recipe?.Steps.ElementAtOrDefault(CurrentStepIndex) ?? string.Empty;
     public string StepProgress => Recipe != null
         ? $"Step {CurrentStepIndex + 1} of {Recipe.Steps.Count}" : string.Empty;
 
     public RecipeDetailViewModel(
         ITextToSpeechService tts, IRecipeService recipes, ISettingsService settings)
     {
-        _tts      = tts;
-        _recipes  = recipes;
+        _tts = tts;
+        _recipes = recipes;
         _settings = settings;
-        Title     = "Recipe";
+        Title = "Recipe";
     }
 
     partial void OnRecipeChanged(Recipe? value)
     {
         if (value == null) return;
-        Title       = value.Name;
+        Title = value.Name;
         IsFavourite = value.IsFavourite;
         OnPropertyChanged(nameof(HasFoodImages));
     }
@@ -293,7 +351,7 @@ public partial class RecipeDetailViewModel : BaseViewModel
 
         if (IsReadingIngredients) { IsReadingIngredients = false; _tts.Stop(); }
 
-        if (IsReadingAll)  { IsReadingAll  = false; _tts.Stop(); }
+        if (IsReadingAll) { IsReadingAll = false; _tts.Stop(); }
         if (IsReadingStep) { IsReadingStep = false; _tts.Stop(); }
 
         IsReadingIngredients = true;
@@ -323,7 +381,7 @@ public partial class RecipeDetailViewModel : BaseViewModel
         if (IsReadingAll) { IsReadingAll = false; _tts.Stop(); }
 
         if (IsReadingIngredients) { IsReadingIngredients = false; _tts.Stop(); }
-        if (IsReadingStep)        { IsReadingStep        = false; _tts.Stop(); }
+        if (IsReadingStep) { IsReadingStep = false; _tts.Stop(); }
 
         IsReadingAll = true;
         try
@@ -352,7 +410,7 @@ public partial class RecipeDetailViewModel : BaseViewModel
         if (IsReadingStep) { IsReadingStep = false; _tts.Stop(); }
 
         if (IsReadingIngredients) { IsReadingIngredients = false; _tts.Stop(); }
-        if (IsReadingAll)         { IsReadingAll         = false; _tts.Stop(); }
+        if (IsReadingAll) { IsReadingAll = false; _tts.Stop(); }
 
         IsReadingStep = true;
         try
@@ -370,8 +428,8 @@ public partial class RecipeDetailViewModel : BaseViewModel
     private void StopSpeaking()
     {
         IsReadingIngredients = false;
-        IsReadingAll         = false;
-        IsReadingStep        = false;
+        IsReadingAll = false;
+        IsReadingStep = false;
         _tts.Stop();
     }
 
@@ -394,7 +452,7 @@ public partial class RecipeDetailViewModel : BaseViewModel
     [RelayCommand]
     private void ToggleCookingMode()
     {
-        IsCookingMode    = !IsCookingMode;
+        IsCookingMode = !IsCookingMode;
         CurrentStepIndex = 0;
         NotifyStep();
     }
@@ -408,7 +466,7 @@ public partial class RecipeDetailViewModel : BaseViewModel
     {
         if (Recipe == null) return;
         await _recipes.ToggleFavouriteAsync(Recipe.Id);
-        IsFavourite        = !IsFavourite;
+        IsFavourite = !IsFavourite;
         Recipe.IsFavourite = IsFavourite;
     }
 
@@ -436,7 +494,7 @@ public partial class RecipeDetailViewModel : BaseViewModel
     [RelayCommand]
     private void ViewPhoto(string url)
     {
-        SelectedPhotoUrl  = url;
+        SelectedPhotoUrl = url;
         IsPhotoFullScreen = true;
     }
 
@@ -445,7 +503,7 @@ public partial class RecipeDetailViewModel : BaseViewModel
     private void ClosePhoto()
     {
         IsPhotoFullScreen = false;
-        SelectedPhotoUrl  = string.Empty;
+        SelectedPhotoUrl = string.Empty;
     }
 
     [RelayCommand]

@@ -44,89 +44,101 @@
                            Color="{StaticResource Primary}"
                            HorizontalOptions="Center" VerticalOptions="Center" />
 
-        <CollectionView Grid.Row="2"
-                        ItemsSource="{Binding FilteredRecipes}"
-                        IsVisible="{Binding IsNotBusy}"
-                        Margin="12,0" SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Recipe">
-                    <SwipeView>
-                        <!--
-                            Swipe RIGHT to reveal Edit (blue) and Delete (red).
-                            Mode="Reveal" keeps both buttons visible so the user chooses.
-                        -->
-                        <SwipeView.RightItems>
-                            <SwipeItems Mode="Reveal">
-                                <SwipeItem Text="Edit"
-                                           BackgroundColor="{StaticResource Secondary}"
-                                           Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeListViewModel}},
-                                                             Path=EditRecipeCommand}"
-                                           CommandParameter="{Binding .}" />
-                                <SwipeItem Text="Delete"
-                                           BackgroundColor="{StaticResource ErrorColor}"
-                                           Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeListViewModel}},
-                                                             Path=DeleteRecipeCommand}"
-                                           CommandParameter="{Binding .}" />
-                            </SwipeItems>
-                        </SwipeView.RightItems>
+        <!--
+            RefreshView wraps the CollectionView to enable pull-to-refresh.
+            - Command        : triggers RefreshRecipesCommand in the ViewModel to reload data.
+            - IsRefreshing   : two-way binding so the spinner stops when the command completes.
+            - RefreshColor   : matches the app's primary accent colour.
+        -->
+        <RefreshView Grid.Row="2"
+                     Command="{Binding RefreshRecipesCommand}"
+                     IsRefreshing="{Binding IsRefreshing, Mode=TwoWay}"
+                     RefreshColor="{StaticResource Primary}"
+                     IsVisible="{Binding IsNotBusy}">
 
-                        <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,8">
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeListViewModel}},
-                                                      Path=OpenRecipeCommand}"
-                                    CommandParameter="{Binding .}" />
-                            </Frame.GestureRecognizers>
-                            <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="12">
-                                <!-- Emoji circle -->
-                                <Frame Grid.Column="0"
-                                       WidthRequest="52" HeightRequest="52" CornerRadius="26"
-                                       BackgroundColor="{Binding CardColor}"
-                                       Padding="0" HasShadow="False" BorderColor="Transparent"
-                                       VerticalOptions="Center">
-                                    <Label Text="{Binding EmojiThumbnail}" FontSize="26"
-                                           HorizontalOptions="Center" VerticalOptions="Center" />
-                                </Frame>
-                                <!-- Name, category, time, difficulty -->
-                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
-                                    <Label Text="{Binding Name}" Style="{StaticResource BodyStyle}"
-                                           FontAttributes="Bold" LineBreakMode="TailTruncation" />
-                                    <HorizontalStackLayout Spacing="8">
-                                        <Label Text="{Binding Category}" Style="{StaticResource CaptionStyle}" />
-                                        <Label Text="|" Style="{StaticResource CaptionStyle}" />
-                                        <Label Text="{Binding TotalTimeDisplay}"
-                                               Style="{StaticResource CaptionStyle}"
-                                               TextColor="{StaticResource Primary}" />
-                                        <Label Text="|" Style="{StaticResource CaptionStyle}" />
-                                        <Label Text="{Binding Difficulty}" Style="{StaticResource CaptionStyle}" />
-                                    </HorizontalStackLayout>
-                                </VerticalStackLayout>
-                                <!-- Favourite heart: tappable directly on the list -->
-                                <Label Grid.Column="2"
-                                       Text="{Binding IsFavourite, Converter={StaticResource FavouriteIconConverter}}"
-                                       FontSize="{DynamicResource GlobalHeadingFontSize}" VerticalOptions="Center">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeListViewModel}},
-                                                              Path=ToggleFavouriteCommand}"
-                                            CommandParameter="{Binding .}" />
-                                    </Label.GestureRecognizers>
-                                </Label>
-                            </Grid>
-                        </Frame>
-                    </SwipeView>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-            <CollectionView.EmptyView>
-                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"
-                                     Spacing="12" Margin="32">
-                    <Label Text="No recipes found." Style="{StaticResource SubheadingStyle}"
-                           HorizontalOptions="Center" />
-                    <Label Text="Tap + to add your first recipe."
-                           Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" />
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
-        </CollectionView>
+            <CollectionView ItemsSource="{Binding FilteredRecipes}"
+                            Margin="12,0" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Recipe">
+                        <SwipeView>
+                            <!--
+                                Swipe RIGHT to reveal Edit (blue) and Delete (red).
+                                Mode="Reveal" keeps both buttons visible so the user chooses.
+                            -->
+                            <SwipeView.RightItems>
+                                <SwipeItems Mode="Reveal">
+                                    <SwipeItem Text="Edit"
+                                               BackgroundColor="{StaticResource Secondary}"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeListViewModel}},
+                                                                 Path=EditRecipeCommand}"
+                                               CommandParameter="{Binding .}" />
+                                    <SwipeItem Text="Delete"
+                                               BackgroundColor="{StaticResource ErrorColor}"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeListViewModel}},
+                                                                 Path=DeleteRecipeCommand}"
+                                               CommandParameter="{Binding .}" />
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+
+                            <Frame Style="{StaticResource CardStyle}" Margin="0,0,0,8">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeListViewModel}},
+                                                          Path=OpenRecipeCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Frame.GestureRecognizers>
+                                <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="12">
+                                    <!-- Emoji circle -->
+                                    <Frame Grid.Column="0"
+                                           WidthRequest="52" HeightRequest="52" CornerRadius="26"
+                                           BackgroundColor="{Binding CardColor}"
+                                           Padding="0" HasShadow="False" BorderColor="Transparent"
+                                           VerticalOptions="Center">
+                                        <Label Text="{Binding EmojiThumbnail}" FontSize="26"
+                                               HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Frame>
+                                    <!-- Name, category, time, difficulty -->
+                                    <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}" Style="{StaticResource BodyStyle}"
+                                               FontAttributes="Bold" LineBreakMode="TailTruncation" />
+                                        <HorizontalStackLayout Spacing="8">
+                                            <Label Text="{Binding Category}" Style="{StaticResource CaptionStyle}" />
+                                            <Label Text="|" Style="{StaticResource CaptionStyle}" />
+                                            <Label Text="{Binding TotalTimeDisplay}"
+                                                   Style="{StaticResource CaptionStyle}"
+                                                   TextColor="{StaticResource Primary}" />
+                                            <Label Text="|" Style="{StaticResource CaptionStyle}" />
+                                            <Label Text="{Binding Difficulty}" Style="{StaticResource CaptionStyle}" />
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+                                    <!-- Favourite heart: tappable directly on the list -->
+                                    <Label Grid.Column="2"
+                                           Text="{Binding IsFavourite, Converter={StaticResource FavouriteIconConverter}}"
+                                           FontSize="{DynamicResource GlobalHeadingFontSize}" VerticalOptions="Center">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeListViewModel}},
+                                                                  Path=ToggleFavouriteCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </Grid>
+                            </Frame>
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"
+                                         Spacing="12" Margin="32">
+                        <Label Text="No recipes found." Style="{StaticResource SubheadingStyle}"
+                               HorizontalOptions="Center" />
+                        <Label Text="Tap + to add your first recipe."
+                               Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+
+        </RefreshView>
 
     </Grid>
 </ContentPage>
